@@ -13,7 +13,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class Comment {
 	private Long id;
 	private String username;

@@ -1,0 +1,78 @@
+#title {
+	margin-top: -10px;	
+}
+
+.form {
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.username-section {
+	margin-bottom: 5px;
+}
+
+#username-label {
+	margin-top: 5px;
+	font-size: 13px;
+	font-style: italic;
+	color: red;
+	display: none;
+}
+
+.firstName-section {
+	margin-bottom: 5px;
+}
+
+#firstName-label {
+	margin-top: 5px;
+	font-size: 13px;
+	font-style: italic;
+	color: red;
+	display: none;
+}
+
+.lastName-section {
+	margin-bottom: 5px;
+}
+
+#lastName-label {
+	margin-top: 5px;
+	font-size: 13px;
+	font-style: italic;
+	color: red;
+	display: none;
+}
+
+#password {
+	margin-bottom:5px;
+}
+
+.password-section {
+	margin-bottom: 10px;
+}
+
+#password-label {
+	margin-top: 5px;
+	font-size: 13px;
+	font-style: italic;
+	color: red;
+	display: none;
+}
+
+#password2-label {
+	margin-top: 5px;
+	font-size: 13px;
+	font-style: italic;
+	color: red;
+	display: none;
+}
+
+#register {
+	width: 100%;
+}
+
+
+

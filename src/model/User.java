@@ -14,7 +14,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class User {
 	private Long id;
 	private String username;

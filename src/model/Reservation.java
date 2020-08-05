@@ -13,7 +13,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class Reservation {
 	private Long id;
 	private User user;

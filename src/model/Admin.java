@@ -11,7 +11,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class Admin {
 	private String username;
 	private String password;

@@ -16,7 +16,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class Apartment {
 	private Long id;
 	private String apartmentName;

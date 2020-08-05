@@ -11,7 +11,6 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class Amenity {
 	private Long id;
 	private String amenity;

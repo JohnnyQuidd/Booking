@@ -1,4 +1,4 @@
-package model;
+package dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +11,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address {
-	private Long id;
-	private String street;
-	private int number;
-	private String city;
-	private int zipCode;
+@SuppressWarnings("unused")
+public class LoginDTO {
+	private String username;
+	private String password;
 }
