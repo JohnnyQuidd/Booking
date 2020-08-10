@@ -11,7 +11,10 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDTO {
+public class UserPreviewDTO {
 	private String username;
-	private String password;
+	private String firstName;
+	private String lastName;
+	private String gender;
+	private boolean active;
 }

@@ -21,7 +21,9 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String gender;
-	private List<Apartment> rentedApartments = new ArrayList<>();
-	private List<Reservation> reservations = new ArrayList<>();
 	private boolean active;
+	@Builder.Default
+	private List<Apartment> rentedApartments = new ArrayList<>();
+	@Builder.Default
+	private List<Reservation> reservations = new ArrayList<>();
 }

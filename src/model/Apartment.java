@@ -23,15 +23,31 @@ public class Apartment {
 	private int numberOfRooms;
 	private int numberOfGuests;
 	private Location location;
-	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
-	private List<LocalDateTime> rentedDates = new ArrayList<>();
-	private Host host;
-	private List<Comment> comments = new ArrayList<>();
-	private double pricePerNight;
-	private LocalTime checkInTime = LocalTime.of(14, 0);
-	private LocalTime checkOutTime  = LocalTime.of(10, 0);
 	private ApartmentStatus status;
+	private double pricePerNight;
+	private Host host;
+	
+	@Builder.Default
+	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
+	
+	@Builder.Default
+	private List<LocalDateTime> rentedDates = new ArrayList<>();
+	
+	@Builder.Default
+	private List<Comment> comments = new ArrayList<>();
+	
+	@Builder.Default
+	private LocalTime checkInTime = LocalTime.of(14, 0);
+	
+	@Builder.Default
+	private LocalTime checkOutTime  = LocalTime.of(10, 0);
+	
+	@Builder.Default
 	private List<Reservation> reservations = new ArrayList<>();
+	
+	@Builder.Default
 	private List<Amenity> amenities = new ArrayList<>();
+	
+	@Builder.Default
 	private List<String> images = new ArrayList<>();
 }

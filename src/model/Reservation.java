@@ -24,6 +24,8 @@ public class Reservation {
 	private String message;
 	private double price;
 	private boolean active;
-	private int numberOfNights = 1;
 	private ReservationStatus reservationStatus;
+	
+	@Builder.Default
+	private int numberOfNights = 1;
 }

@@ -11,12 +11,12 @@ $(document).ready(() => {
                 url: '../rest/user/login',
                 data: payload,
                 contentType: 'application/json',
-                dataType: 'json',
+                dataType: 'text',
                 success: response => {
-                    console.log(response.responseText);
+                    console.log('Success');
                 },
                 error: err => {
-                    console.log('An Error occurred: ' + err);
+                    console.log('An Error occurred: ' + err.responseText);
                 }
             });
 

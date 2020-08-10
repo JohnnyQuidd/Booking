@@ -21,6 +21,8 @@ public class Host {
 	private String firstName;
 	private String lastName;
 	private String gender;
-	private List<Apartment> apartmentsForRent = new ArrayList<>();
 	private boolean active;
+	
+	@Builder.Default
+	private List<Apartment> apartmentsForRent = new ArrayList<>();
 }

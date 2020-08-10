@@ -19,12 +19,12 @@ $(document).ready(() => {
 				url: '../rest/user/register',
 				data: data,
 				contentType: 'application/json',
-				dataType: 'json',
-				success: response => {
-					console.log(response.responseText);
+				dataType: 'text',
+				success: function(response) {
+					window.location.href = 'login.html';
 				},
-				error: err => {
-					console.log('An Error occurred ', err);
+				error: function(error) {
+					console.log('An Error occurred ');
 				}
 			});
 		} else {

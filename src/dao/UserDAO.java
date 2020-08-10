@@ -19,7 +19,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
-import model.Apartment;
 import model.User;
 
 @Getter
@@ -30,19 +29,7 @@ public class UserDAO {
 	
 	public UserDAO(String path) {
 		this.path = path;
-		
-		User user = User.builder()
-				.id(1L)
-				.username("user")
-				.password("user")
-				.firstName("Skinny")
-				.lastName("Pete")
-				.gender("Male")
-				.active(true)
-				.build();
-		
-		this.users.put(user.getUsername(), user);
-		saveUsers();
+		loadUsers();
 	}
 	
 	private void saveUsers() {
@@ -88,13 +75,13 @@ public class UserDAO {
             objectMapper.setVisibilityChecker(
                     VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
             TypeFactory factory = TypeFactory.defaultInstance();
-            MapType type = factory.constructMapType(HashMap.class, String.class, Apartment.class);
+            MapType type = factory.constructMapType(HashMap.class, String.class, User.class);
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-            objectMapper.registerModule(new JavaTimeModule());
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            System.out.println((Map<String, User>) objectMapper.readValue(file, type));
+            //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             this.users = (Map<String, User>) objectMapper.readValue(file, type);
+            printUsers();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -106,6 +93,23 @@ public class UserDAO {
                 }
             }
         }
+	}
+	
+	public boolean addNewUser(User user) {
+		try {
+			this.users.put(user.getUsername(), user);
+			saveUsers();
+			return true;
+		} catch(Exception e) {
+			System.out.println("An error occured while saving users");
+			return false;
+		}
+	}
+	
+	private void printUsers() {
+		for(User user : this.users.values()) {
+			System.out.println(user.getUsername());
+		}
 	}
 	
 }
