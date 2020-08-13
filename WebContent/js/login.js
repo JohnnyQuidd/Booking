@@ -13,10 +13,11 @@ $(document).ready(() => {
                 contentType: 'application/json',
                 dataType: 'text',
                 success: response => {
-                    console.log('Success');
+                    localStorage.setItem('username', username);
+					window.location.href = '../index.html';
                 },
                 error: err => {
-                    console.log('An Error occurred: ' + err.responseText);
+                    alert(err.responseText);
                 }
             });
 

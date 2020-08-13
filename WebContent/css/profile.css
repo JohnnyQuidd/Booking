@@ -15,10 +15,6 @@
 }
 
 
-#title {
-	margin-top: -10px;	
-}
-
 .form {
     width: 40%;
     margin-left: auto;
@@ -29,6 +25,10 @@
 
 .username-section {
 	margin-bottom: 5px;
+}
+
+#username:hover {
+	cursor: not-allowed;
 }
 
 #username-label {
@@ -87,9 +87,6 @@
 	display: none;
 }
 
-#register {
+#submit {
 	width: 100%;
 }
-
-
-

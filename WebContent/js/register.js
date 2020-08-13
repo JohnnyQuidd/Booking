@@ -24,7 +24,7 @@ $(document).ready(() => {
 					window.location.href = 'login.html';
 				},
 				error: function(error) {
-					console.log('An Error occurred ');
+					alert(error.responseText);
 				}
 			});
 		} else {

@@ -71,17 +71,21 @@ public class UserService {
 		return Response.status(200).entity(dto).build();
 	}
 	
+	@Path("/{username}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response modifyUserData(RegisterDTO userDTO) {
+	public Response modifyUserData(@PathParam("username") String username, RegisterDTO userDTO) {
 		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
 		
-		if(validFields(userDTO)) {
+		if(validFieldsForModifying(userDTO)) {
 			User user = findUserForGivenUsername(userDTO.getUsername(), userDAO);
 			if(user == null) 
 				return Response.status(404).entity("User not found").build();
 			
+			if(!user.getUsername().equals(username)) {
+				return Response.status(403).entity("You have no permission to change data").build();
+			}
 			modifyUser(user, userDTO);
 			userDAO.addNewUser(user);
 			return Response.status(200).entity("OK").build();
@@ -137,9 +141,10 @@ public class UserService {
 	@POST
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void logout(@Context HttpServletRequest request) {
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response logout(@Context HttpServletRequest request) {
         request.getSession().invalidate();
+        return Response.status(200).entity("OK").build();
     }
 	
 	private List<UserPreviewDTO> makeUserPreviewFromModel(List<User> users) {
@@ -169,10 +174,15 @@ public class UserService {
 	}
 	
 	public void modifyUser(User user, RegisterDTO dto) {
-		user.setFirstName(dto.getFirstName());
-		user.setLastName(dto.getLastName());
-		user.setGender(dto.getGender());
-		user.setPassword(dto.getPassword());
+		if(!dto.getFirstName().equals("") && !dto.getFirstName().equals(user.getFirstName())) {
+			user.setFirstName(dto.getFirstName());
+		}
+		if(!dto.getLastName().equals("") && !dto.getLastName().equals(user.getLastName())) {
+			user.setLastName(dto.getLastName());
+		}
+		if(!dto.getPassword().equals("") && !dto.getPassword().equals(user.getPassword())) {
+			user.setPassword(dto.getPassword());
+		}
 	}
 	
 	private User findUserForUsernameAndPassword(LoginDTO loginDTO, UserDAO userDAO) {
@@ -189,6 +199,12 @@ public class UserService {
 				return true;
 		}
 		return false;
+	}
+	
+	private boolean validFieldsForModifying(RegisterDTO dto) {
+		return !dto.getUsername().trim().equals("") && !dto.getFirstName().trim().equals("")
+				&& !dto.getLastName().trim().equals("")
+				&& !dto.getPassword().trim().equals("");
 	}
 	
 	private boolean validFields(RegisterDTO dto) {
