@@ -19,26 +19,26 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
-import model.User;
+import model.Admin;
 
 @Getter
 @Setter
-public class UserDAO {
-	private Map<String, User> users = new HashMap<>();
+public class AdminDAO {
+	private Map<String, Admin> admins = new HashMap<>();
 	private String path;
 	
-	public UserDAO(String path) {
-		this.path = path;
-		loadUsers();
+	public AdminDAO(String contextPath) {
+		path = contextPath;
+		loadAdmins();
 	}
 	
-	private void saveUsers() {
-		System.out.println("saving users");
+	public void saveAdmins() {
+		System.out.println("saving admins");
 
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\user.json");
+			file = new File(this.path + "\\admin.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -46,7 +46,7 @@ public class UserDAO {
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			String string = objectMapper.writeValueAsString(this.users);
+			String string = objectMapper.writeValueAsString(this.admins);
 			fileWriter.write(string);
 		} catch (IOException eeee) {
 			eeee.printStackTrace();
@@ -59,12 +59,11 @@ public class UserDAO {
 				}
 			}
 		}
-		
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void loadUsers() {
-		String loadPath = this.path + "\\user.json";
+	public void loadAdmins() {
+		String loadPath = this.path + "\\admin.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -75,11 +74,12 @@ public class UserDAO {
             objectMapper.setVisibilityChecker(
                     VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
             TypeFactory factory = TypeFactory.defaultInstance();
-            MapType type = factory.constructMapType(HashMap.class, String.class, User.class);
+            MapType type = factory.constructMapType(HashMap.class, String.class, Admin.class);
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            this.users = (Map<String, User>) objectMapper.readValue(file, type);
+            //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            this.admins = (Map<String, Admin>) objectMapper.readValue(file, type);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -93,15 +93,14 @@ public class UserDAO {
         }
 	}
 	
-	public boolean addNewUser(User user) {
+	public boolean addNewAdmin(Admin admin) {
 		try {
-			this.users.put(user.getUsername(), user);
-			saveUsers();
+			this.admins.put(admin.getUsername(), admin);
+			saveAdmins();
 			return true;
 		} catch(Exception e) {
-			System.out.println("An error occured while saving users");
+			System.out.println("An error occured while saving admins");
 			return false;
 		}
 	}
-	
 }

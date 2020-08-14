@@ -1,6 +1,7 @@
 package services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -17,10 +18,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import dao.AdminDAO;
 import dao.UserDAO;
 import dto.LoginDTO;
 import dto.RegisterDTO;
 import dto.UserPreviewDTO;
+import model.Admin;
 import model.User;
 
 @Path("/user")
@@ -37,6 +40,10 @@ public class UserService {
 		if(servletContext.getAttribute("userDAO") == null) {
 			servletContext.setAttribute("userDAO", new UserDAO(servletContext.getRealPath("")));
 		}
+		
+		if(servletContext.getAttribute("adminDAO") == null) {
+			servletContext.setAttribute("adminDAO", new AdminDAO(servletContext.getRealPath("")));
+		}
 	}
 	
 	@Path("/all")
@@ -44,7 +51,7 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllUsers() {
 		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
-		List<User> users = (List<User>) userDAO.getUsers().values();
+		Collection<User> users = (Collection<User>) userDAO.getUsers().values();
 		
 		List<UserPreviewDTO> usersPreview = makeUserPreviewFromModel(users);
 		return Response.status(200).entity(usersPreview).build();
@@ -96,20 +103,31 @@ public class UserService {
 	@Path("/login")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response loginUser(LoginDTO loginDTO, @Context HttpServletRequest request) {
 		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
 		User user = findUserForUsernameAndPassword(loginDTO, userDAO);
-		if(user == null) {
-			return Response.status(403).entity("Invalid credentials").build();
+		if(user != null) {
+			if(!user.isActive()) {
+				return Response.status(403).entity("User is banned from logging").build();
+			}
+			
+			request.getSession().setAttribute("username", user.getUsername());
+			request.getSession().setAttribute("role", "user");
+			return Response.status(200).entity("user").build();
 		}
 		
-		if(!user.isActive()) {
-			return Response.status(403).entity("User is banned from logging").build();
+		AdminDAO adminDAO = (AdminDAO) servletContext.getAttribute("adminDAO");
+		Admin admin = findAdminForUsernameAndPassword(loginDTO, adminDAO);
+
+		if(admin != null) {
+			request.getSession().setAttribute("username", admin.getUsername());
+			request.getSession().setAttribute("role", "admin");
+			return Response.status(200).entity("admin").build();
 		}
 		
-		request.getSession().setAttribute("username", user.getUsername());
-		return Response.status(200).entity("OK").build();
+		
+		return Response.status(403).entity("Invalid credentials").build();
 	}
 
 	@Path("/register")
@@ -147,7 +165,7 @@ public class UserService {
         return Response.status(200).entity("OK").build();
     }
 	
-	private List<UserPreviewDTO> makeUserPreviewFromModel(List<User> users) {
+	private List<UserPreviewDTO> makeUserPreviewFromModel(Collection<User> users) {
 		List<UserPreviewDTO> dtos = new ArrayList<>();
 		
 		for(User user : users) {
@@ -170,6 +188,16 @@ public class UserService {
 			if(user.getUsername().equals(username))
 				return user;
 		}
+		return null;
+	}
+	
+	private Admin findAdminForUsernameAndPassword(LoginDTO dto, AdminDAO adminDAO) {
+		for(Admin admin : adminDAO.getAdmins().values()) {
+			if(admin.getUsername().equals(dto.getUsername()) && admin.getPassword().equals(dto.getPassword())) {
+				return admin;
+			}
+		}
+		
 		return null;
 	}
 	

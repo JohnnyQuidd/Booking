@@ -14,6 +14,10 @@ $(document).ready(() => {
         window.location.href = 'html/profile.html';
     });
 
+    $('#adminProfileButton').click(() => {
+        window.location.href = 'html/adminProfile.html';
+    });
+
 	$('#logoutButton').click(() => {
 		let username = localStorage.getItem('username');
 		let payload = JSON.stringify(username);
@@ -37,11 +41,21 @@ function renderButtons() {
         $('#loginButton').show();
         $('#registerButton').show();
 		$('#profileButton').hide();
-		$('#logoutButton').hide();
+        $('#logoutButton').hide();
+        $('#adminProfileButton').hide();
     } else {
 	    $('#loginButton').hide();
         $('#registerButton').hide();
-		$('#profileButton').show();
-		$('#logoutButton').show();
+		
+        $('#logoutButton').show();
+        
+        switch(localStorage.getItem('role')) {
+            case 'admin' :  $('#adminProfileButton').show();
+                            $('#profileButton').hide();
+                            break;
+            case 'admin' :  $('#adminProfileButton').hide();
+                            $('#profileButton').show();
+                            break;
+        }
 	}
 }

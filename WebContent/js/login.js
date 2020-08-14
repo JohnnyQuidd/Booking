@@ -14,6 +14,7 @@ $(document).ready(() => {
                 dataType: 'text',
                 success: response => {
                     localStorage.setItem('username', username);
+					localStorage.setItem('role', response);
 					window.location.href = '../index.html';
                 },
                 error: err => {

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../global-css.css">
+    <link rel="stylesheet" href="../css/adminProfile.css">
+    <script src="../js/adminProfile.js"></script>
+    <title>Login</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+		<a class="nav-link" href="../index.html">Booking</a>
+	</nav>
+    <div class="jumbotron">
+        <div class="text-center">
+            <h2>Admin profile</h2>
+            <h3 id="listHeadline">List of all users</h3>
+
+            <div class="search-section">
+                <input class="form-control" type="text" placeholder="Search by username" aria-label="Search" id="searchField">
+                <button class="btn btn-primary" id="searchButton"> Search</button>
+            </div>
+
+            <table class="table table-hover" id="usersTable">
+                <thead class="thead-inverse">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Username </th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Gender</th>
+                    <th scope="col">Active</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+              </table>
+              
+        </div>
+    </div>
+</body>
+</html>
