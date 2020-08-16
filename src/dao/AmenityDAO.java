@@ -19,26 +19,55 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
-import model.Admin;
+import model.Amenity;
 
 @Getter
 @Setter
-public class AdminDAO {
-	private Map<String, Admin> admins = new HashMap<>();
+public class AmenityDAO {
 	private String path;
+	private Map<Long, Amenity> amenities = new HashMap<>();
 	
-	public AdminDAO(String contextPath) {
+	public AmenityDAO(String contextPath) {
 		path = contextPath;
-		loadAdmins();
+		loadAmenities();
 	}
 	
-	public void saveAdmins() {
-		System.out.println("saving admins");
+	@SuppressWarnings("unchecked")
+	public void loadAmenities() {
+		String loadPath = this.path + "\\amenity.json";
+        BufferedReader in = null;
+        File file = null;
+        try {
+            file = new File(loadPath);
+            in = new BufferedReader(new FileReader(file));
 
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setVisibilityChecker(
+                    VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+            TypeFactory factory = TypeFactory.defaultInstance();
+            MapType type = factory.constructMapType(HashMap.class, String.class, Amenity.class);
+
+            objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            this.amenities = (Map<Long, Amenity>) objectMapper.readValue(file, type);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+	}
+	
+	public void saveAmenities() {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\admin.json");
+			file = new File(this.path + "\\amenity.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -46,7 +75,7 @@ public class AdminDAO {
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			String string = objectMapper.writeValueAsString(this.admins);
+			String string = objectMapper.writeValueAsString(this.amenities);
 			fileWriter.write(string);
 		} catch (IOException eeee) {
 			eeee.printStackTrace();
@@ -61,54 +90,15 @@ public class AdminDAO {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void loadAdmins() {
-		String loadPath = this.path + "\\admin.json";
-        BufferedReader in = null;
-        File file = null;
-        try {
-            file = new File(loadPath);
-            in = new BufferedReader(new FileReader(file));
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setVisibilityChecker(
-                    VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
-            TypeFactory factory = TypeFactory.defaultInstance();
-            MapType type = factory.constructMapType(HashMap.class, String.class, Admin.class);
-
-            objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            this.admins = (Map<String, Admin>) objectMapper.readValue(file, type);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-	}
-	
-	public boolean addNewAdmin(Admin admin) {
+	public boolean addNewAmenity(Amenity amenity) {
 		try {
-			this.admins.put(admin.getUsername(), admin);
-			saveAdmins();
+			this.amenities.put(amenity.getId(), amenity);
+			saveAmenities();
 			return true;
 		} catch(Exception e) {
-			System.out.println("An error occured while saving admins");
+			System.out.println("An error occured while saving amenities");
 			return false;
 		}
 	}
 	
-	public Admin findAdminByUsername(String username) {
-		for(Admin admin : this.admins.values()) {
-			if(admin.getUsername().equals(username))
-				return admin;
-		}
-		return null;
-	}
 }

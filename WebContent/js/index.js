@@ -18,6 +18,10 @@ $(document).ready(() => {
         window.location.href = 'html/adminProfile.html';
     });
 
+    $('#hostProfileButton').click(() => {
+        window.location.href = 'html/hostProfile.html';
+    });
+
 	$('#logoutButton').click(() => {
 		let username = localStorage.getItem('username');
 		let payload = JSON.stringify(username);
@@ -43,6 +47,7 @@ function renderButtons() {
 		$('#profileButton').hide();
         $('#logoutButton').hide();
         $('#adminProfileButton').hide();
+        $('#hostProfileButton').hide();
     } else {
 	    $('#loginButton').hide();
         $('#registerButton').hide();
@@ -52,9 +57,15 @@ function renderButtons() {
         switch(localStorage.getItem('role')) {
             case 'admin' :  $('#adminProfileButton').show();
                             $('#profileButton').hide();
+                            $('#hostProfileButton').hide();
                             break;
-            case 'admin' :  $('#adminProfileButton').hide();
+            case 'user' :  $('#adminProfileButton').hide();
                             $('#profileButton').show();
+                            $('#hostProfileButton').hide();
+                            break;
+            case 'host' :   $('#adminProfileButton').hide();
+                            $('#profileButton').hide();
+                            $('#hostProfileButton').show();
                             break;
         }
 	}

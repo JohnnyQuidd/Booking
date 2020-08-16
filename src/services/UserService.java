@@ -19,11 +19,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import dao.AdminDAO;
+import dao.HostDAO;
 import dao.UserDAO;
 import dto.LoginDTO;
 import dto.RegisterDTO;
 import dto.UserPreviewDTO;
 import model.Admin;
+import model.Host;
 import model.User;
 
 @Path("/user")
@@ -43,6 +45,10 @@ public class UserService {
 		
 		if(servletContext.getAttribute("adminDAO") == null) {
 			servletContext.setAttribute("adminDAO", new AdminDAO(servletContext.getRealPath("")));
+		}
+		
+		if(servletContext.getAttribute("hostDAO") == null) {
+			servletContext.setAttribute("hostDAO", new HostDAO(servletContext.getRealPath("")));
 		}
 	}
 	
@@ -126,6 +132,14 @@ public class UserService {
 			return Response.status(200).entity("admin").build();
 		}
 		
+		HostDAO hostDAO = (HostDAO) servletContext.getAttribute("hostDAO");
+		Host host = findHostForUsernameAndPassword(loginDTO, hostDAO);
+		
+		if(host != null) {
+			request.getSession().setAttribute("username", host.getUsername());
+			request.getSession().setAttribute("role", "host");
+			return Response.status(200).entity("host").build();
+		}
 		
 		return Response.status(403).entity("Invalid credentials").build();
 	}
@@ -195,6 +209,16 @@ public class UserService {
 		for(Admin admin : adminDAO.getAdmins().values()) {
 			if(admin.getUsername().equals(dto.getUsername()) && admin.getPassword().equals(dto.getPassword())) {
 				return admin;
+			}
+		}
+		
+		return null;
+	}
+	
+	private Host findHostForUsernameAndPassword(LoginDTO dto, HostDAO hostDAO) {
+		for(Host host : hostDAO.getHosts().values()) {
+			if(host.getUsername().equals(dto.getUsername()) && host.getPassword().equals(dto.getPassword())) {
+				return host;
 			}
 		}
 		

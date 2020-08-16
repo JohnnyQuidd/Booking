@@ -1,0 +1,18 @@
+#headline {
+	margin-top: -10px;
+}
+
+.adding-amenities {
+    margin-top: 10px;
+    display: inline;
+}
+
+#amenityName {
+	width: 30%;
+    display: inline;
+    margin: 20px auto;
+}
+
+#addAmenity {
+	margin-left: 10px;
+}

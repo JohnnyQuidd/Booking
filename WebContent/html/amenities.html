@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../global-css.css">
+    <link rel="stylesheet" href="../css/amenities.css">
+    <script src="../js/amenities.js"></script>
+    <title>Amenities</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+		<a class="nav-link" href="../index.html">Booking</a>
+	</nav>
+    <div class="jumbotron">
+        <div class="text-center">
+            <h2 id="headline">Managing amenities</h2>
+            <div class="adding-amenities">
+                <input class="form-control" type="text" placeholder="Amenity name" aria-label="Amenity name" id="amenityName">
+                <button class="btn btn-primary" id="addAmenity"> Add amenity</button>
+            </div>
+
+            <table class="table table-hover" id="amenitiesTable">
+            <thead class="thead-inverse">
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Amenity </th>
+                <th scope="col">Active</th>
+                <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+            </table>
+
+        </div>
+    </div>
+</body>
+</html>

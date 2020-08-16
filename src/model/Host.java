@@ -15,7 +15,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Host {
-	private Long id;
 	private String username;
 	private String password;
 	private String firstName;

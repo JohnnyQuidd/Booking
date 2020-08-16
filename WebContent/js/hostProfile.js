@@ -1,11 +1,12 @@
 $(document).ready(() => {
     fetchUsers();
-    
+
     $('#searchButton').click(() => {
+        let hostUsername = localStorage.getItem('username');
         let username = $('#searchField').val();
 		
         $.get({
-            url: '../rest/user/' + username,
+            url: '../rest/host/' + hostUsername + '/' + username,
             dataType: 'json',
             success: response => {
                 printUser(response);
@@ -16,15 +17,12 @@ $(document).ready(() => {
             }
         });
     });
-
-    $('#amenities').click(() => {
-        window.location.href = 'amenities.html';
-    });
 });
 
 function fetchUsers() {
+    let hostUsername = localStorage.getItem('username');
     $.get({
-        url: '../rest/user/all',
+        url: '../rest/host/' + hostUsername + "/users",
         dataType: 'json',
         success: response => {
             appendTable(response);
@@ -33,20 +31,6 @@ function fetchUsers() {
             alert(err.responseText);
         }
     });
-}
-
-function printUser(user) {
-    $("#usersTable tr").empty();
-
-        $('#usersTable tr:last').after(`
-        <tr>
-            <th scope="row">` + 1 + `</th>
-            <td> ` + user.username + `</td>
-            <td>`+ user.firstName + `</td>
-            <td>`+ user.lastName + `</td>
-            <td>`+ user.gender + `</td>
-            <td>`+ (user.active ? `Yes` : `No`) + `</td>
-        </tr>`);
 }
 
 function appendTable(users) {
@@ -62,4 +46,18 @@ function appendTable(users) {
             <td>`+ (users[i].active ? `Yes` : `No`) + `</td>
         </tr>`);
     }
+}
+
+function printUser(user) {
+    $("#usersTable tr").empty();
+
+        $('#usersTable tr:last').after(`
+        <tr>
+            <th scope="row">` + 1 + `</th>
+            <td> ` + user.username + `</td>
+            <td>`+ user.firstName + `</td>
+            <td>`+ user.lastName + `</td>
+            <td>`+ user.gender + `</td>
+            <td>`+ (user.active ? `Yes` : `No`) + `</td>
+        </tr>`);
 }
