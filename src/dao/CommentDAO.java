@@ -19,22 +19,22 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
-import model.Apartment;
+import model.Comment;
 
 @Getter
 @Setter
-public class ApartmentDAO {
-	private Map<Long, Apartment> apartments = new HashMap<>();
+public class CommentDAO {
 	private String path;
+	private Map<Long, Comment> comments = new HashMap<>();
 	
-	public ApartmentDAO(String contextPaht) {
-		this.path = contextPaht;
-		loadApartments();
+	public CommentDAO(String path) {
+		this.path = path;
+		loadComments();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void loadApartments() {
-		String loadPath = this.path + "\\apartment.json";
+	public void loadComments() {
+		String loadPath = this.path + "\\comment.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -45,11 +45,11 @@ public class ApartmentDAO {
             objectMapper.setVisibilityChecker(
                     VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
             TypeFactory factory = TypeFactory.defaultInstance();
-            MapType type = factory.constructMapType(HashMap.class, String.class, Apartment.class);
+            MapType type = factory.constructMapType(HashMap.class, String.class, Comment.class);
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            this.apartments = (Map<Long, Apartment>) objectMapper.readValue(file, type);
+            this.comments = (Map<Long, Comment>) objectMapper.readValue(file, type);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -63,11 +63,11 @@ public class ApartmentDAO {
         }
 	}
 	
-	public void saveApartments() {
+	public void saveComments() {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\apartment.json");
+			file = new File(this.path + "\\comment.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -75,7 +75,7 @@ public class ApartmentDAO {
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			String string = objectMapper.writeValueAsString(this.apartments);
+			String string = objectMapper.writeValueAsString(this.comments);
 			fileWriter.write(string);
 		} catch (IOException eeee) {
 			eeee.printStackTrace();
@@ -90,43 +90,17 @@ public class ApartmentDAO {
 		}
 	}
 	
-	public boolean addNewApartment(Apartment apartment) {
+	public boolean addNewComment(Comment comment) {
 		try {
-			this.apartments.put(apartment.getId(), apartment);
-			saveApartments();
+			this.comments.put(comment.getId(), comment);
+			saveComments();
 			return true;
 		} catch(Exception e) {
-			System.out.println("An error occured while saving apartments");
+			System.out.println("An error occured while saving comments");
 			return false;
 		}
 	}
 	
-	public boolean deleteApartment(Long id) {
-		if(!this.apartments.containsKey(id))
-			return false;
-		try {
-			Apartment apartment = this.apartments.get(id);
-			apartment.setDeleted(true);
-			saveApartments();
-			return true;
-		} catch(Exception e) {
-			System.out.println("An error occurred while deliting apartment with ID: " + id);
-			return false;
-		}
-	}
 	
-	public boolean modifyApartment(Apartment apartment) {
-		try {
-			saveApartments();
-			return true;
-		} catch(Exception e) {
-			System.out.println("An error occurred while updating apartments");
-			return false;
-		}
-	}
-	
-	public Apartment findApartmentById(Long id) {
-		return this.apartments.get(id);
-	}
 	
 }

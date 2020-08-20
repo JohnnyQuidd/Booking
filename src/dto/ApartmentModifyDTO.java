@@ -1,7 +1,6 @@
-package model;
+package dto;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +9,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import model.Amenity;
+import model.ApartmentStatus;
+import model.ApartmentType;
+import model.Location;
+import model.Reservation;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Apartment {
+public class ApartmentModifyDTO {
 	private Long id;
 	private String apartmentName;
 	private ApartmentType apartmentType;
@@ -25,23 +29,13 @@ public class Apartment {
 	private Location location;
 	private ApartmentStatus status;
 	private double pricePerNight;
-	private Host host;
-	private boolean deleted;
 	
 	@Builder.Default
 	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
 	
 	@Builder.Default
 	private List<LocalDateTime> rentedDates = new ArrayList<>();
-	
-	@Builder.Default
-	private List<Comment> comments = new ArrayList<>();
-	
-	@Builder.Default
-	private LocalTime checkInTime = LocalTime.of(14, 0);
-	
-	@Builder.Default
-	private LocalTime checkOutTime  = LocalTime.of(10, 0);
+
 	
 	@Builder.Default
 	private List<Reservation> reservations = new ArrayList<>();
