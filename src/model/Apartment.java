@@ -2,7 +2,6 @@ package model;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,12 +12,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Apartment {
 	private Long id;
 	private String apartmentName;
@@ -31,28 +32,21 @@ public class Apartment {
 	private String hostName;
 	private boolean deleted;
 	
-	@Builder.Default
-	private List<Date> availabeDatesForRenting = new ArrayList<>();
+	private List<Date> availabeDatesForRenting;
 	
-	@Builder.Default
-	private List<LocalDateTime> rentedDates = new ArrayList<>();
+	private List<LocalDateTime> rentedDates;
 	
-	@Builder.Default
-	private List<Comment> comments = new ArrayList<>();
+	private List<Comment> comments;
 	
-	@Builder.Default
-	private LocalTime checkInTime = LocalTime.of(14, 0);
-	
-	@Builder.Default
-	private LocalTime checkOutTime  = LocalTime.of(10, 0);
+	private LocalTime checkInTim;
+
+	private LocalTime checkOutTime;
 	
 	@JsonBackReference
-	@Builder.Default
-	private List<Reservation> reservations = new ArrayList<>();
+	private List<Reservation> reservations;
 	
-	@Builder.Default
-	private List<Amenity> amenities = new ArrayList<>();
+	private List<Amenity> amenities;
 	
-	@Builder.Default
-	private List<String> images = new ArrayList<>();
+	private List<String> images;
+	
 }

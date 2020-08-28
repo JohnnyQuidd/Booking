@@ -1,6 +1,5 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -21,7 +20,5 @@ public class Host {
 	private String lastName;
 	private String gender;
 	private boolean active;
-	
-	@Builder.Default
-	private List<Apartment> apartmentsForRent = new ArrayList<>();
+	private List<Apartment> apartmentsForRent;
 }

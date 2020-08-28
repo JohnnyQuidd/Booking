@@ -1,5 +1,18 @@
+#title {
+	margin-top: -20px;
+	margin-bottom: 30px;
+}
+
 #loginButton {
-	margin-left: 80%;
+	position: absolute;
+	top: 5px;
+	right: 5%;
+}
+
+#registerButton {
+	position: absolute;
+	top: 5px;
+	right: 10px;
 }
 
 #profileButton {
@@ -14,7 +27,63 @@
 	margin-left: 85%;
 }
 
+.apartment {
+	width: 50%;
+	height: 260px;
+	margin: 0px auto;
+	position: relative;
+	border: 1px solid rgba(27, 187, 174, 0.6);
+	box-shadow: 3px 5px #888888
+}
+
+.apartmentPreview {
+	position: absolute;
+	height: 250px;
+	width: 400px;
+	top: 5px;
+	left: 5px;
+}
+
+.apartmentName {
+	position: absolute;
+	left: 60%;
+	font-size: 30px;
+	font-weight: 600;
+}
+
+.numberOfGuests {
+	position: absolute;
+	left: 60%;
+	top: 15%;
+}
+
+.numberOfRooms{
+	position: absolute;
+	left: 60%;
+	top: 30%;
+}
+
+.pricePerNight {
+	position: absolute;
+	left: 60%;
+	top: 45%;
+}
+
+.location {
+	position: absolute;
+	left: 60%;
+	top: 60%;
+}
+
+.btn-secondary {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+}
+
+
 #logoutButton {
-	margin-top: 30px;
-	margin-left: -50%;
+	margin-top: 100px;
+	margin-left: -25%;
+	position: absolute;
 }

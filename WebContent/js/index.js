@@ -1,6 +1,8 @@
 $(document).ready(() => {
-
+    fetchApartments();
     renderButtons();
+
+
 
     $('#loginButton').click(() => {
         window.location.href = 'html/login.html';
@@ -39,6 +41,39 @@ $(document).ready(() => {
             });
 	});
 });
+
+
+function fetchApartments() {
+    $.get({
+        url: 'rest/apartment/all',
+        dataType: 'json',
+        success: response => {
+            appendApartment(response);
+            console.log('Successfully fetched apartments');
+        },
+        error: err => {
+            alert(err.responseText);
+        }
+    });
+}
+
+function appendApartment(apartments) {
+    for(let i=0; i<apartments.length; i++) {
+        $('.apartments').append(
+            '<div class="apartment">' 
+            + '<img class="apartmentPreview" src="' + apartments[i].images[0] + '"/>'
+            + '<p class="apartmentName"> Apartment: ' + apartments[i].apartmentName + '</p>' 
+            + '<p class="numberOfGuests"> Guests: ' + apartments[i].numberOfGuests + '</p>'
+            + '<p class="numberOfRooms"> Rooms: ' + apartments[i].numberOfRooms + '</p>'
+            + '<p class="pricePerNight"> Price per night: ' + apartments[i].pricePerNight + ' $</p>'
+            + '<p class="location"> Location: ' + apartments[i].location.address.street + ', ' + apartments[i].location.address.city + '</p>'
+            + '<button class="btn btn-secondary">' + ' More information'  + '</button>'
+            +'</div>'
+        );
+        console.log('Appends');
+    }
+}
+
 
 function renderButtons() {
     if(localStorage.getItem('username') === null) {
