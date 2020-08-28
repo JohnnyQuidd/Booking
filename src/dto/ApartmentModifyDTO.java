@@ -2,6 +2,7 @@ package dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class ApartmentModifyDTO {
 	private double pricePerNight;
 	
 	@Builder.Default
-	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
+	private List<Date> availabeDatesForRenting = new ArrayList<>();
 	
 	@Builder.Default
 	private List<LocalDateTime> rentedDates = new ArrayList<>();

@@ -1,0 +1,79 @@
+h2 {
+	margin-top: -10px;
+	margin-bottom: 20px;
+}
+
+#apartmentForm{
+    width: 60%;
+    margin: 10px auto;
+}
+
+#apartmentName {
+    margin: 5px 0;
+}
+
+#numberOfRooms {
+    margin: 5px 0;
+}
+
+#numberOfGuests{
+    margin: 5px 0;
+}
+
+#pricePerNight{
+    margin: 5px 0;
+}
+
+#amenities{
+    margin: 5px 0;
+}
+
+#street{
+    margin: 5px 0;
+}
+
+#number{
+    margin: 5px 0;
+}
+
+#city{
+    margin: 5px 0;
+}
+
+#zipCode{
+    margin: 5px 0;
+}
+
+
+#map-placeholder {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    height: 500px;
+}
+
+#imgs {
+    width: 100%;
+}
+
+#imgs img {
+	margin-top: 10px;
+    width: 100%;
+}
+
+#upload {
+    width: 100%;
+}
+
+#dates {
+    font-size: 15px;
+    margin: 10px auto;
+}
+
+#availableForRenting {
+    margin: 10px 0 20px 0;
+}
+
+#postApartment {
+	width: 100%;
+}

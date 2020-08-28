@@ -1,6 +1,10 @@
 $(document).ready(() => {
     fetchUsers();
 
+    $('#addApartment').click(() => {
+        window.location.href = 'addingApartment.html';
+    });
+
     $('#searchButton').click(() => {
         let hostUsername = localStorage.getItem('username');
         let username = $('#searchField').val();

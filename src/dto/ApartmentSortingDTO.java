@@ -17,6 +17,9 @@ import model.Apartment;
 @AllArgsConstructor
 public class ApartmentSortingDTO {
 	private String criteria;
+	private String apartmentName;
+	private int numberOfRooms;
+	private int numberOfGuests;
 	@Builder.Default
 	private List<Apartment> apartments = new ArrayList<>();
 }

@@ -1,14 +1,15 @@
 package dto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class NewApartmentDTO {
 	private String apartmentName;
 	private String apartmentType;
@@ -21,10 +22,12 @@ public class NewApartmentDTO {
 	private String city;
 	private int zipCode;
 	// Other location related fields
-	private double lattitude;
+	private double latitude;
 	private double longitude;
 	
-	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
+	// day/month/year, day/month/year
+	// in JS January is 1, in Java January is 0
+	private String availableDatesForRenting;
 	private List<String> amenities = new ArrayList<>();
 	private List<String> images = new ArrayList<>();	
 }

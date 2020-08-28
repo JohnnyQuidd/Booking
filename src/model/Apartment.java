@@ -3,7 +3,10 @@ package model;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,11 +28,11 @@ public class Apartment {
 	private Location location;
 	private ApartmentStatus status;
 	private double pricePerNight;
-	private Host host;
+	private String hostName;
 	private boolean deleted;
 	
 	@Builder.Default
-	private List<LocalDateTime> availabeDatesForRenting = new ArrayList<>();
+	private List<Date> availabeDatesForRenting = new ArrayList<>();
 	
 	@Builder.Default
 	private List<LocalDateTime> rentedDates = new ArrayList<>();
@@ -43,6 +46,7 @@ public class Apartment {
 	@Builder.Default
 	private LocalTime checkOutTime  = LocalTime.of(10, 0);
 	
+	@JsonBackReference
 	@Builder.Default
 	private List<Reservation> reservations = new ArrayList<>();
 	
