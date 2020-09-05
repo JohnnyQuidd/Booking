@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class Apartment {
 	private Long id;
 	private String apartmentName;
@@ -38,7 +40,7 @@ public class Apartment {
 	
 	private List<Comment> comments;
 	
-	private LocalTime checkInTim;
+	private LocalTime checkInTime;
 
 	private LocalTime checkOutTime;
 	

@@ -33,7 +33,7 @@ public class AmenityDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadAmenities() {
-		String loadPath = this.path + "\\amenity.json";
+		String loadPath = this.path + "amenity.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -66,7 +66,7 @@ public class AmenityDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\amenity.json");
+			file = new File(this.path + "amenity.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -103,6 +103,15 @@ public class AmenityDAO {
 	public Amenity findAmenityByName(String amenityName) {
 		for(Amenity amenity : this.amenities.values()) {
 			if(amenity.getAmenity().equals(amenityName))
+				return amenity;
+		}
+		
+		return null;
+	}
+	
+	public Amenity findAmenityById(Long id) {
+		for(Amenity amenity : this.amenities.values()) {
+			if(amenity.getId().equals(id))
 				return amenity;
 		}
 		

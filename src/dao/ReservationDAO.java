@@ -33,7 +33,7 @@ public class ReservationDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadReservations() {
-		String loadPath = this.path + "\\reservation.json";
+		String loadPath = this.path + "reservation.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -66,7 +66,7 @@ public class ReservationDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\reservation.json");
+			file = new File(this.path + "reservation.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();

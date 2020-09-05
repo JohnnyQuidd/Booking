@@ -37,7 +37,7 @@ public class AdminDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\admin.json");
+			file = new File(this.path + "admin.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -62,7 +62,7 @@ public class AdminDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadAdmins() {
-		String loadPath = this.path + "\\admin.json";
+		String loadPath = this.path + "admin.json";
         BufferedReader in = null;
         File file = null;
         try {

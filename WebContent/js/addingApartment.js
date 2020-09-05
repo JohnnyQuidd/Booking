@@ -48,7 +48,7 @@ $(document).ready(() => {
                     contentType: 'application/json',
                     dataType: 'text',
                     success: response => {
-                        alert(response.responseText);
+                        alert('Apartment added successfully');
                     },
                     error: err => {
                         alert(err.responseText);

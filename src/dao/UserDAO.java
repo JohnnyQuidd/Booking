@@ -31,13 +31,13 @@ public class UserDAO {
 		loadUsers();
 	}
 	
-	private void saveUsers() {
+	public void saveUsers() {
 		System.out.println("saving users");
 
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\user.json");
+			file = new File(this.path + "user.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -63,7 +63,7 @@ public class UserDAO {
 	
 	@SuppressWarnings("unchecked")
 	private void loadUsers() {
-		String loadPath = this.path + "\\user.json";
+		String loadPath = this.path + "user.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -101,6 +101,15 @@ public class UserDAO {
 			System.out.println("An error occured while saving users");
 			return false;
 		}
+	}
+	
+	public User findUserByUsername(String username) {
+		for(User user : users.values()) {
+			if(user.getUsername().equals(username))
+				return user;
+		}
+		
+		return null;
 	}
 	
 }

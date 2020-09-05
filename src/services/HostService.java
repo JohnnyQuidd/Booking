@@ -8,7 +8,9 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -16,15 +18,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import dao.AdminDAO;
 import dao.ApartmentDAO;
 import dao.HostDAO;
 import dao.ReservationDAO;
 import dao.UserDAO;
+import dto.HostDTO;
 import dto.UserPreviewDTO;
 import model.Apartment;
 import model.Host;
 import model.Reservation;
 import model.User;
+import util.UsernameUniqueness;
 
 @Path("/host")
 public class HostService {
@@ -39,6 +44,10 @@ public class HostService {
 			context.setAttribute("userDAO", new UserDAO(context.getRealPath("")));
 		}
 		
+		if(context.getAttribute("adminDAO") == null) {
+			context.setAttribute("adminDAO", new AdminDAO(context.getRealPath("")));
+		}
+		
 		if(context.getAttribute("hostDAO") == null) {
 			context.setAttribute("hostDAO", new HostDAO(context.getRealPath("")));
 		}
@@ -50,6 +59,32 @@ public class HostService {
 		if(context.getAttribute("reservationDAO") == null) {
 			context.setAttribute("reservationDAO", new ReservationDAO(context.getRealPath("")));
 		}
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response registerNewHost(HostDTO hostDTO) {
+		
+		if(!UsernameUniqueness.isUsernameUnique(hostDTO.getUsername(), context)) {
+			return Response.status(403).entity("Host name is not unique, try another one").build();
+		}
+		
+		Host host = Host.builder()
+				.username(hostDTO.getUsername())
+				.password(hostDTO.getPassword())
+				.firstName(hostDTO.getFirstName())
+				.lastName(hostDTO.getLastName())
+				.gender(hostDTO.getGender())
+				.active(true)
+				.build();
+		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
+		if(hostDAO.addNewHost(host)) {
+			context.setAttribute("hostDAO", hostDAO);
+			return Response.status(201).entity("Created").build();
+		}
+		
+		return Response.status(500).entity("An error occurred while persisting a host").build();
 	}
 	
 	@Path("/{hostUsername}/users")
@@ -100,9 +135,11 @@ public class HostService {
 	}
 	
 	private void addUserFromEachReservation(List<Reservation> reservations, Map<String, User> users) {
-		for(Reservation reservation : reservations) {
-			if(!users.containsKey(reservation.getUser().getUsername())) {
-				users.put(reservation.getUser().getUsername(), reservation.getUser());
+		if(reservations != null && users != null) {
+			for(Reservation reservation : reservations) {
+				if(!users.containsKey(reservation.getUser().getUsername())) {
+					users.put(reservation.getUser().getUsername(), reservation.getUser());
+				}
 			}
 		}
 	}

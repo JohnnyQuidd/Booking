@@ -33,7 +33,7 @@ public class CommentDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadComments() {
-		String loadPath = this.path + "\\comment.json";
+		String loadPath = this.path + "comment.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -66,7 +66,7 @@ public class CommentDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\comment.json");
+			file = new File(this.path + "comment.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();

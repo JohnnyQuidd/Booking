@@ -20,6 +20,46 @@ $(document).ready(() => {
     $('#amenities').click(() => {
         window.location.href = 'amenities.html';
     });
+
+    $('#addHost').click(() => {
+        let username = $('#username').val();
+        let firstName = $('#firstName').val();
+        let lastName = $('#lastName').val();
+        let password = $('#password').val();
+        let password2 = $('#password2').val();
+        let gender = '';
+		
+		if($('#male').is(':checked')){
+			gender = 'Male';
+		} else {
+			gender = 'Female';
+        }
+        if(allFieldsSatisfied(username, firstName, lastName, password, password2)) {
+           if(password !== password2) {
+               alert('Passwords have to match');
+                return;
+           }
+           let payload = JSON.stringify({username, firstName, lastName, password, gender});
+
+           $.post({
+                url: '../rest/host',
+                data: payload,
+                contentType: 'application/json',
+                dataType: 'text',
+                success: () => {
+                    alert('Host successfully added');
+                },
+                error : err => {
+                    alert(err.responseText);
+                }
+           });
+        }
+        else {
+            alert('All fields must be filled');
+        }
+        
+        
+    });
 });
 
 function fetchUsers() {
@@ -60,6 +100,51 @@ function appendTable(users) {
             <td>`+ users[i].lastName + `</td>
             <td>`+ users[i].gender + `</td>
             <td>`+ (users[i].active ? `Yes` : `No`) + `</td>
+            <td>` + renderActionButton(users[i].active, users[i].username) +` </td>
         </tr>`);
     }
+}
+
+function renderActionButton(active, username) {
+    if(active === true) {
+        return `<button id="block`+ username + `" class="btn btn-danger"> Block </button>`;
+    }
+    return `<button id="unblock`+ username + `" class="btn btn-success"> Unblock </button>`;
+}
+
+$(document).on("click", ".btn-danger", function() {
+    let instruction = $(this).attr("id");
+    let username = instruction.substr(5, instruction.length);
+
+    $.ajax({
+        url: '../rest/user/block/' + username,
+        type: 'POST',
+        success: function() {
+            window.location.href = 'adminProfile.html';
+        },
+        error : function () {
+            alert("Couldn't block user");
+        }
+    });
+});
+
+$(document).on("click", ".btn-success", function() {
+    let instruction = $(this).attr("id");
+    let username = instruction.substr(7, instruction.length);
+    console.log('Unblocking: ' + username);
+
+    $.ajax({
+        url: '../rest/user/unblock/' + username,
+        type: 'POST',
+        success: function() {
+            window.location.href = 'adminProfile.html';
+        },
+        error : function () {
+            alert("Couldn't unblock user");
+        }
+    });
+});
+
+function allFieldsSatisfied(username, firstName, lastName, password, password2) {
+    return username !== '' && firstName !== '' && lastName !== '' && password !== '' && password2 !== '';
 }

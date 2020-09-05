@@ -131,16 +131,18 @@ public class ApartmentService {
 		return Response.status(200).entity(apartments).build();
 	}
 	
-	@Path("/{apartmentName}")
+	@Path("/{apartmentID}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getActiveApartmentForProidedName(@PathParam("apartmentName") String apartmentName) {
+	public Response getActiveApartmentForProidedName(@PathParam("apartmentID") Long apartmentID) {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
-		Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
+		//Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
+		Collection<Apartment> apartments = getAllApartments();
 		
-		apartments.stream().filter(apartment -> {
-			return apartment.getApartmentName().equals(apartmentName);
-		});
+		apartments = apartments.stream().filter(apartment -> {
+			return apartment.getId().equals(apartmentID);
+		}).collect(Collectors.toList());
+		
 		
 		return Response.status(200).entity(apartments).build();
 	}
@@ -156,9 +158,9 @@ public class ApartmentService {
 			return Response.status(404).entity("Host not found").build();
 		
 		Collection<Apartment> apartments = host.getApartmentsForRent();
-		apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getStatus().equals(ApartmentStatus.ACTIVE);
-		});
+		}).collect(Collectors.toList());
 		
 		return Response.status(200).entity(apartments).build();
 	}
@@ -174,9 +176,9 @@ public class ApartmentService {
 			return Response.status(404).entity("Host not found").build();
 		
 		Collection<Apartment> apartments = host.getApartmentsForRent();
-		apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getStatus().equals(ApartmentStatus.INACTIVE);
-		});
+		}).collect(Collectors.toList());
 		
 		return Response.status(200).entity(apartments).build();
 	}
@@ -357,7 +359,7 @@ public class ApartmentService {
 			Date date = new Date();
 			date.setDate(day);
 			date.setMonth(month);
-			date.setYear(year);
+			date.setYear(year - 1900);
 			
 			dateList.add(date);
 		}
@@ -384,7 +386,7 @@ public class ApartmentService {
 	private Collection<Apartment> getAllActiveApartments(ApartmentDAO apartmentDAO) {
 		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
 		
-		apartments = (Collection<Apartment>) apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getStatus().equals(ApartmentStatus.ACTIVE);
 		}).collect(Collectors.toList());
 		
@@ -438,25 +440,25 @@ public class ApartmentService {
 	
 	private Collection<Apartment> applySearchToCollection(Collection<Apartment> apartments, ApartmentSearchDTO dto) {
 		if(dto.getNumberOfRoomsMin() >= 0 && dto.getNumberOfRoomsMax() >= dto.getNumberOfRoomsMin())
-			apartments.stream().filter(apartment -> {
+			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getNumberOfRooms() >= dto.getNumberOfRoomsMin() &&
 						apartment.getNumberOfRooms() <= dto.getNumberOfRoomsMax();
 			}).collect(Collectors.toList());
 		
 		if(dto.getPriceMin() >=0 && dto.getPriceMax() >= dto.getPriceMin()) {
-			apartments.stream().filter(apartment -> {
+			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getPricePerNight() >= dto.getPriceMin() &&
 						apartment.getPricePerNight() <= dto.getPriceMax();
 			}).collect(Collectors.toList());
 		}
 		
 		if(dto.getNumberOfGuests() > 0) 
-			apartments.stream().filter(apartment -> {
+			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getNumberOfGuests() == dto.getNumberOfGuests();
 			}).collect(Collectors.toList());
 		
 		if(!dto.getCity().equals(""))
-			apartments.stream().filter(apartment -> {
+			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getLocation().getAddress().getCity().equals(dto.getCity());
 			}).collect(Collectors.toList());
 		
@@ -465,49 +467,59 @@ public class ApartmentService {
 	
 	private List<Apartment> sortApartmentsByPriceASC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		return apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight)).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight)).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	
 	private List<Apartment> sortApartmentsByPriceDESC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		return apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight).reversed()).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight).reversed()).collect(Collectors.toList());
+		return sorted;
 	}
 
 	private List<Apartment> sortApartmentsByNameASC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName)).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName)).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private List<Apartment> sortApartmentsByNameDESC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName).reversed()).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName).reversed()).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private List<Apartment> sortApartmentsByRoomsASC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms)).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms)).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private List<Apartment> sortApartmentsByRoomsDESC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms).reversed()).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms).reversed()).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private List<Apartment> sortApartmentsByGuestsASC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private List<Apartment> sortApartmentsByGuestsDESC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
-		
-		return apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
+		List<Apartment> sorted = new ArrayList<>();
+		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
+		return sorted;
 	}
 	
 	private Collection<Apartment> getAllActiveApartmentsForProvidedHost(String username) {
@@ -518,28 +530,34 @@ public class ApartmentService {
 		if(host != null)
 			apartments = host.getApartmentsForRent();
 		
-		return apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE))
+		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE))
 				.collect(Collectors.toList());
+		
+		return apartments;
 	}
 	
 	private Collection<Apartment> filterApartmentsByAmenities(Collection<Apartment> apartments, List<String> amenities) {
-		apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			List<Amenity> apertmentAmenities = apartment.getAmenities();
 			return containsAllAmenities(apertmentAmenities, amenities);
-		});
+		}).collect(Collectors.toList());
 		return apartments;
 	}
 	
 	public Collection<Apartment> filterApartmentsByStatus(Collection<Apartment> apartments, ApartmentStatus status) {
-		return apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getStatus().equals(status);
 		}).collect(Collectors.toList());
+		
+		return apartments;
 	}
 	
 	public Collection<Apartment> filterApartmentsByType(Collection<Apartment> apartments, ApartmentType type) {
-		return apartments.stream().filter(apartment -> {
+		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getApartmentType().equals(type);
 		}).collect(Collectors.toList());
+		
+		return apartments;
 	}
 	
 	private boolean containsAllAmenities(List<Amenity> apartmentAmenities, List<String> amenities) {

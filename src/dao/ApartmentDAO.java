@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -15,9 +16,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import lombok.Getter;
 import lombok.Setter;
+import model.Amenity;
 import model.Apartment;
 
 @Getter
@@ -33,7 +36,7 @@ public class ApartmentDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadApartments() {
-		String loadPath = this.path + "\\apartment.json";
+		String loadPath = this.path + "apartment.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -48,6 +51,7 @@ public class ApartmentDAO {
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            objectMapper.setDateFormat(new StdDateFormat().withLocale(Locale.UK));
             this.apartments = (Map<Long, Apartment>) objectMapper.readValue(file, type);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +70,7 @@ public class ApartmentDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\apartment.json");
+			file = new File(this.path + "apartment.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -126,6 +130,12 @@ public class ApartmentDAO {
 	
 	public Apartment findApartmentById(Long id) {
 		return this.apartments.get(id);
+	}
+	
+	public void removeDeletedAmenityFromEveryApartment(Amenity deletedAmenity) {
+		for(Apartment apartment : apartments.values()) {
+			apartment.getAmenities().remove(deletedAmenity);
+		}
 	}
 	
 }

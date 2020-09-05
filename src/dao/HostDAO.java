@@ -33,7 +33,7 @@ public class HostDAO {
 	
 	@SuppressWarnings("unchecked")
 	public void loadHosts() {
-		String loadPath = this.path + "\\host.json";
+		String loadPath = this.path + "host.json";
         BufferedReader in = null;
         File file = null;
         try {
@@ -66,7 +66,7 @@ public class HostDAO {
 		FileWriter fileWriter = null;
 		File file = null;
 		try {
-			file = new File(this.path + "\\host.json");
+			file = new File(this.path + "host.json");
 			file.createNewFile();
 			fileWriter = new FileWriter(file);
 			ObjectMapper objectMapper = new ObjectMapper();

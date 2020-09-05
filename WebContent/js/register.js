@@ -25,6 +25,7 @@ $(document).ready(() => {
 				},
 				error: function(error) {
 					alert(error.responseText);
+					console.log('Error submiting registration form');
 				}
 			});
 		} else {

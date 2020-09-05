@@ -27,6 +27,7 @@ import dto.UserPreviewDTO;
 import model.Admin;
 import model.Host;
 import model.User;
+import util.UsernameUniqueness;
 
 @Path("/user")
 public class UserService {
@@ -101,6 +102,8 @@ public class UserService {
 			}
 			modifyUser(user, userDTO);
 			userDAO.addNewUser(user);
+			
+			servletContext.setAttribute("userDAO", userDAO);
 			return Response.status(200).entity("OK").build();
 		}
 		return Response.status(400).entity("Bad request").build();
@@ -152,7 +155,7 @@ public class UserService {
 		
 		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
 		
-		if(usernameIsAlreadyTaken(userDTO.getUsername(), userDAO)) {
+		if(!UsernameUniqueness.isUsernameUnique(userDTO.getUsername(), servletContext)) {
 			System.out.println("Username is already taken");
 			return Response.status(403).entity("Username is already taken").build();
 		}
@@ -167,6 +170,7 @@ public class UserService {
 			return Response.status(201).entity("User created").build();
 		}
 		
+		servletContext.setAttribute("userDAO", userDAO);
 		return Response.status(500).entity("Server error occured while saving user").build();
 	}
 	
@@ -178,6 +182,40 @@ public class UserService {
         request.getSession().invalidate();
         return Response.status(200).entity("OK").build();
     }
+	
+	@POST
+	@Path("/block/{username}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response blockUser(@PathParam("username") String username, @Context HttpServletRequest request) {
+		String role =  (String) request.getSession().getAttribute("role");
+		if(!role.equals("admin")) return Response.status(403).entity("You have no permission to block users").build();
+		
+		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(username);
+		if(user == null) return Response.status(404).entity("User " + username + " not found").build();
+		
+		user.setActive(false);
+		userDAO.saveUsers();
+		servletContext.setAttribute("userDAO", userDAO);
+		return Response.status(200).entity(username + " successfully blocked").build();
+	}
+	
+	@POST
+	@Path("/unblock/{username}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response unblockUser(@PathParam("username") String username, @Context HttpServletRequest request) {
+		String role =  (String) request.getSession().getAttribute("role");
+		if(!role.equals("admin")) return Response.status(403).entity("You have no permission to ublock users").build();
+		
+		UserDAO userDAO = (UserDAO) servletContext.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(username);
+		if(user == null) return Response.status(404).entity("User " + username + " not found").build();
+		
+		user.setActive(true);
+		userDAO.saveUsers();
+		servletContext.setAttribute("userDAO", userDAO);
+		return Response.status(200).entity(username + " successfully unblocked").build();
+	}
 	
 	private List<UserPreviewDTO> makeUserPreviewFromModel(Collection<User> users) {
 		List<UserPreviewDTO> dtos = new ArrayList<>();
@@ -243,14 +281,6 @@ public class UserService {
 				return user;
 		}
 		return null;
-	}
-	
-	private boolean usernameIsAlreadyTaken(String username, UserDAO userDAO) {
-		for(User user : userDAO.getUsers().values()) {
-			if(user.getUsername().equals(username))
-				return true;
-		}
-		return false;
 	}
 	
 	private boolean validFieldsForModifying(RegisterDTO dto) {

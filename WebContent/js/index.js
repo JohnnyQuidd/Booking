@@ -42,6 +42,12 @@ $(document).ready(() => {
 	});
 });
 
+$(document).on("click", ".btn-secondary", function() {
+    let apartmentId = $(this).attr("id");
+    localStorage.setItem('apartmentId', apartmentId);
+    window.location.href = 'html/apartmentDetails.html';
+});
+
 
 function fetchApartments() {
     $.get({
@@ -67,10 +73,9 @@ function appendApartment(apartments) {
             + '<p class="numberOfRooms"> Rooms: ' + apartments[i].numberOfRooms + '</p>'
             + '<p class="pricePerNight"> Price per night: ' + apartments[i].pricePerNight + ' $</p>'
             + '<p class="location"> Location: ' + apartments[i].location.address.street + ', ' + apartments[i].location.address.city + '</p>'
-            + '<button class="btn btn-secondary">' + ' More information'  + '</button>'
+            + '<button class="btn btn-secondary" id="' + apartments[i].id +'">' + ' More information'  + '</button>'
             +'</div>'
         );
-        console.log('Appends');
     }
 }
 

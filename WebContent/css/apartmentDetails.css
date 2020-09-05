@@ -1,0 +1,81 @@
+.container {
+    position: relative;
+    border: 1px solid #8888;
+    height: 2000px;
+}
+
+#apartmentName {
+    position: absolute;
+    top: 10px;
+    left: 40%;
+}
+
+#apartmentType {
+    position: absolute;
+    top: 100px;
+    left: 10%;
+}
+
+#numberOfRooms {
+    position: absolute;
+    top: 100px;
+    left: 60%;
+}
+
+#numberOfGuests {
+    position: absolute;
+    top: 150px;
+    left: 10%;
+}
+
+#pricePerNight {
+    position: absolute;
+    top: 150px;
+    left: 60%;
+}
+
+#hostName {
+    position: absolute;
+    top: 200px;
+    left: 10%;
+}
+
+#street {
+    position: absolute;
+    top: 200px;
+    left: 60%;
+}
+
+#city {
+    position: absolute;
+    top: 250px;
+    left: 10%;
+}
+
+#location {
+    position: absolute;
+    top: 250px;
+    left: 60%;
+}
+
+.carousel-inner{
+	margin: 30% auto 20px auto;
+    width: 1000px;
+}
+
+img {
+    max-width: 1000px;
+    max-height: 700px;
+    margin-left: auto;
+	margin-right: auto;
+}
+
+.amenityContainer {
+    margin-top: 30px;
+    font-size: 18px;
+}
+
+.datesContainer {
+    margin-top: 30px;
+    font-size: 16px;
+}

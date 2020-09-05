@@ -30,10 +30,10 @@
 .apartment {
 	width: 50%;
 	height: 260px;
-	margin: 0px auto;
+	margin: 0px auto 30px auto;
 	position: relative;
 	border: 1px solid rgba(27, 187, 174, 0.6);
-	box-shadow: 3px 5px #888888
+	box-shadow: 3px 5px rgba(136, 136, 138, 0.5);
 }
 
 .apartmentPreview {
