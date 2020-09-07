@@ -1,6 +1,10 @@
 package services;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -215,13 +219,15 @@ public class ApartmentService {
 		return Response.status(404).entity("Can't modify apartment with provided ID").build();
 	}
 	
-	@Path("/advandedSearch")
+	@Path("/advancedSearch")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response searchApartments(ApartmentSearchDTO searchDTO) {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
-		Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
+		//Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
+		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
+		
 		apartments = applySearchToCollection(apartments, searchDTO);
 		
 		return Response.status(200).entity(apartments).build();
@@ -233,6 +239,7 @@ public class ApartmentService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response sortApartments(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> sortedApartments = apartmentsDTO.getApartments();
+		
 		switch(apartmentsDTO.getCriteria()) {
 			case "priceASC": sortedApartments = sortApartmentsByPriceASC(apartmentsDTO);
 				break;
@@ -250,6 +257,7 @@ public class ApartmentService {
 				break;
 			case "guestsDESC" : sortedApartments = sortApartmentsByGuestsDESC(apartmentsDTO);
 		}
+		
 		return Response.status(200).entity(sortedApartments).build();
 	}
 	
@@ -439,13 +447,13 @@ public class ApartmentService {
 	}
 	
 	private Collection<Apartment> applySearchToCollection(Collection<Apartment> apartments, ApartmentSearchDTO dto) {
-		if(dto.getNumberOfRoomsMin() >= 0 && dto.getNumberOfRoomsMax() >= dto.getNumberOfRoomsMin())
+		if(dto.getNumberOfRoomsMin() >= 0 && dto.getNumberOfRoomsMax() > dto.getNumberOfRoomsMin())
 			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getNumberOfRooms() >= dto.getNumberOfRoomsMin() &&
 						apartment.getNumberOfRooms() <= dto.getNumberOfRoomsMax();
 			}).collect(Collectors.toList());
 		
-		if(dto.getPriceMin() >=0 && dto.getPriceMax() >= dto.getPriceMin()) {
+		if(dto.getPriceMin() >= 0 && dto.getPriceMax() > dto.getPriceMin()) {
 			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getPricePerNight() >= dto.getPriceMin() &&
 						apartment.getPricePerNight() <= dto.getPriceMax();
@@ -461,6 +469,15 @@ public class ApartmentService {
 			apartments = apartments.stream().filter(apartment -> {
 				return apartment.getLocation().getAddress().getCity().equals(dto.getCity());
 			}).collect(Collectors.toList());
+		
+		if(!dto.getAvailableDatesForRenting().equals("")) {
+			List<Date> date = getCheckInAndCheckoutDate(dto.getAvailableDatesForRenting());
+			Date checkIn = date.get(0);
+			Date checkOut = date.get(1);
+			apartments = apartments.stream().filter(apartment -> {
+				return apartmentIsAvailableFromUntil(apartment, checkIn, checkOut);
+			}).collect(Collectors.toList());
+		}
 		
 		return apartments;
 	}
@@ -518,7 +535,7 @@ public class ApartmentService {
 	private List<Apartment> sortApartmentsByGuestsDESC(ApartmentSortingDTO apartmentsDTO) {
 		List<Apartment> apartments = apartmentsDTO.getApartments();
 		List<Apartment> sorted = new ArrayList<>();
-		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
+		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests).reversed()).collect(Collectors.toList());
 		return sorted;
 	}
 	
@@ -574,6 +591,56 @@ public class ApartmentService {
 		
 		// All amenities are present in apartment
 		return true;
+	}
+	
+	@SuppressWarnings("deprecation")
+	private List<Date> getCheckInAndCheckoutDate(String dateStrings) {
+		List<Date> dates = new ArrayList<>();
+		String stringArray[] = dateStrings.split(",");
+		for(String dateString : stringArray) {
+			dateString = dateString.trim();
+			String dateArray[] = dateString.split("/");
+			int day = Integer.parseInt(dateArray[0]);
+			int month = Integer.parseInt(dateArray[1]) + 1;
+			int year = Integer.parseInt(dateArray[2]);
+			
+			Date date = new Date();
+			date.setDate(day);
+			date.setMonth(month);
+			date.setYear(year - 1900);
+			
+			dates.add(date);
+		}
+		return dates;
+	}
+	
+	private boolean apartmentIsAvailableFromUntil(Apartment apartment, Date cIn, Date cOut) {
+		boolean available = true;
+		LocalDate checkIn = cIn.toInstant()
+			      .atZone(ZoneId.systemDefault())
+			      .toLocalDate();
+		LocalDate checkOut = cOut.toInstant()
+			      .atZone(ZoneId.systemDefault())
+			      .toLocalDate();
+		
+		long rentDuration = ChronoUnit.DAYS.between(checkIn, checkOut);
+		
+		Date current =  java.sql.Date.valueOf(checkIn);
+		for(long i=0; i<rentDuration; i++) {
+			Calendar c = Calendar.getInstance(); 
+			c.setTime(current); 
+			c.add(Calendar.DATE, 1);
+			current = c.getTime();
+			
+			if(!apartment.getAvailabeDatesForRenting().contains(current)) {
+				available = false;
+			}
+
+		
+		}
+		
+		
+		return available;
 	}
 	
 	

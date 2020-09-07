@@ -1,4 +1,9 @@
 $(document).ready(() => {
+    $('.date').flatpickr({  
+        mode: "multiple",
+        dateFormat: "d/m/Y"
+    });
+    let apartments;
     fetchApartments();
     renderButtons();
 
@@ -22,6 +27,60 @@ $(document).ready(() => {
 
     $('#hostProfileButton').click(() => {
         window.location.href = 'html/hostProfile.html';
+    });
+
+    $('#sortApartments').click(() => {
+        let criteria = $('#criteria').val();
+		let apartments = this.apartments;
+        let payload = JSON.stringify({criteria, apartments});
+
+        $.post({
+            url: 'rest/apartment/sort',
+            data: payload,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                apartments = response;
+                console.log('Apartments sorted successfully');
+                reRenderApartments(apartments);
+            },
+            error: () => {
+                console.log('Couldn\'t filter apartments');
+            }
+        });
+
+    });
+
+
+    $('#search').click(() => {
+        let priceMin = $('#priceMin').val();
+        let priceMax = $('#priceMax').val();
+        let numberOfRoomsMin = $('#numberOfRoomsMin').val();
+        let numberOfRoomsMax = $('#numberOfRoomsMax').val();
+        let numberOfGuests = $('#numberOfGuests').val();
+        let city = $('#city').val();
+        let availableDatesForRenting = $('.date').val();
+
+        // String of two dates (for instance "02/09/2020, 04/09/2020") has length 22
+        if(availableDatesForRenting.length > 0 && availableDatesForRenting.length != 22) {
+            alert('Only two dates allowed. Check in and check out');
+			return;
+        }
+
+        let payload = JSON.stringify({priceMin, priceMax, numberOfRoomsMin, numberOfRoomsMax, numberOfGuests, city, availableDatesForRenting});
+        $.post({
+            url: 'rest/apartment/advancedSearch',
+            data: payload,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                apartments = response;
+                reRenderApartments(apartments);
+            },
+            error: response => {
+                console.log('Couldn\'t perform advanced search: ' + response);
+            }
+        });
     });
 
 	$('#logoutButton').click(() => {
@@ -54,8 +113,8 @@ function fetchApartments() {
         url: 'rest/apartment/all',
         dataType: 'json',
         success: response => {
-            appendApartment(response);
-            console.log('Successfully fetched apartments');
+            apartments = response;
+            appendApartment(apartments);
         },
         error: err => {
             alert(err.responseText);
@@ -79,6 +138,23 @@ function appendApartment(apartments) {
     }
 }
 
+
+function reRenderApartments(apartments) {
+    $('.apartments').empty();
+    for(let i=0; i<apartments.length; i++) {
+        $('.apartments').append(
+            '<div class="apartment">' 
+            + '<img class="apartmentPreview" src="' + apartments[i].images[0] + '"/>'
+            + '<p class="apartmentName"> Apartment: ' + apartments[i].apartmentName + '</p>' 
+            + '<p class="numberOfGuests"> Guests: ' + apartments[i].numberOfGuests + '</p>'
+            + '<p class="numberOfRooms"> Rooms: ' + apartments[i].numberOfRooms + '</p>'
+            + '<p class="pricePerNight"> Price per night: ' + apartments[i].pricePerNight + ' $</p>'
+            + '<p class="location"> Location: ' + apartments[i].location.address.street + ', ' + apartments[i].location.address.city + '</p>'
+            + '<button class="btn btn-secondary" id="' + apartments[i].id +'">' + ' More information'  + '</button>'
+            +'</div>'
+        );
+    }
+}
 
 function renderButtons() {
     if(localStorage.getItem('username') === null) {

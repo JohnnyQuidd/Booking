@@ -27,6 +27,36 @@
 	margin-left: 85%;
 }
 
+.search-filter {
+	position: relative;
+	width: 50%;
+	margin: 10px auto 20px auto;
+	height: 45px;
+	border: 1px solid rgba(148, 151, 151, 0.6);
+}
+
+#searchApartments {
+	position: absolute;
+	top: 5px;
+	bottom: 5px;
+	left: 10px;
+}
+
+#criteria {
+	position: absolute;
+	width: 200px;
+	top: 5px;
+	bottom: 5px;
+	left: 60%;
+}
+
+#sortApartments {
+	position: absolute;
+	top: 5px;
+	bottom: 5px;
+	right: 10px;
+}
+
 .apartment {
 	width: 50%;
 	height: 260px;
@@ -79,6 +109,63 @@
 	position: absolute;
 	right: 10px;
 	bottom: 10px;
+}
+
+#priceMin {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#numberOfRoomsMin {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#numberOfRoomsMax {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#numberOfGuests {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#city {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#priceMax {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#availableForRenting {
+	margin-top: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#close {
+	margin: 3px 80% 10px 0;
+}
+
+#search {
+	margin: 5px 0 5px 0;
 }
 
 

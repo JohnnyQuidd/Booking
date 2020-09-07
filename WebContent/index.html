@@ -8,6 +8,10 @@
 	<link rel="stylesheet" href="css/index.css">
   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 	<script src="js/index.js"></script>
 	<title>Booking</title>
 </head>
@@ -24,9 +28,53 @@
 	<div class="jumbotron">
 		<div class="text-center">
 			<h2 id="title">Welcome to Booking application</h2>
+			<div class="search-filter">
 
+				<button class="btn btn-primary" data-toggle="modal" data-target="#searchModal" id="searchApartments"> Search for apartment</button>
+
+				<select class="form-control" name="criteria" id="criteria">
+					<option value="priceASC">Price ascending</option>
+					<option value="priceDESC">Price descending</option>
+					<option value="nameASC">Name ascending</option>
+					<option value="nameDESC">Name descending</option>
+					<option value="roomsASC">Rooms ascending</option>
+					<option value="roomsDESC">Rooms descending</option>
+					<option value="guestsASC">Guests ascending</option>
+					<option value="guestsDESC">Guests descending</option>
+				</select>
+
+				<button class="btn btn-light" id="sortApartments"> Sort apartments</button>
+			</div>
 			<div class="apartments">
 				
+			</div>
+			
+			<!-- Modal -->
+			<div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+					<h3 class="modal-title" id="exampleModalLabel">Enter apartment properties</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					</div>
+					<div class="modal-body">
+						<input class="form-control" type="number" placeholder="Minimum price" id="priceMin">
+						<input class="form-control" type="number" placeholder="Maximum price" id="priceMax">
+						<input class="form-control" type="number" placeholder="Minimum rooms" id="numberOfRoomsMin">
+						<input class="form-control" type="number" placeholder="Maximum rooms" id="numberOfRoomsMax">
+						<input class="form-control" type="number" placeholder="Number of guests" id="numberOfGuests">
+						<input class="form-control" type="text" placeholder="City" id="city">
+						<input type="date" class="form-control date" placeholder="Pick check in and checkout date" id="availableForRenting">
+					</div>
+
+					<div class="modal-footer">
+					<button type="button" class="btn btn-light" data-dismiss="modal" id="close">Close</button>
+					<button type="button" class="btn btn-primary" id="search">Search</button>
+					</div>
+				</div>
+				</div>
 			</div>
 
 			<button class="btn btn-primary" id="logoutButton"> Logout</button>
