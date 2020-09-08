@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class ApartmentDAO {
 		loadApartments();
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void loadApartments() {
 		String loadPath = this.path + "apartment.json";
         BufferedReader in = null;
@@ -51,7 +50,7 @@ public class ApartmentDAO {
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            objectMapper.setDateFormat(new StdDateFormat().withLocale(Locale.UK));
+            objectMapper.registerModule(new JavaTimeModule());
             this.apartments = (Map<Long, Apartment>) objectMapper.readValue(file, type);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +65,7 @@ public class ApartmentDAO {
         }
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void saveApartments() {
 		FileWriter fileWriter = null;
 		File file = null;
@@ -78,6 +78,7 @@ public class ApartmentDAO {
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 			//objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			objectMapper.registerModule(new JavaTimeModule());
 			String string = objectMapper.writeValueAsString(this.apartments);
 			fileWriter.write(string);
 		} catch (IOException eeee) {

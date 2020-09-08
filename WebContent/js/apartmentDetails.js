@@ -78,8 +78,7 @@ function renderApartment(apartmentList) {
         }
     }
 
-    function prettifyDate(unix_timestamp) {
-        var date = new Date(unix_timestamp);
-        return date.getDay()+1 + "/" + date.getMonth() + "/" + date.getUTCFullYear(); //date + "/" + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    function prettifyDate(date) {
+		return date.dayOfMonth + "/" + date.monthValue + "/" + date.year + "";
     }
 }

@@ -1,8 +1,8 @@
 package model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -17,9 +17,9 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 @EqualsAndHashCode
 public class Apartment {
@@ -34,7 +34,7 @@ public class Apartment {
 	private String hostName;
 	private boolean deleted;
 	
-	private List<Date> availabeDatesForRenting;
+	private List<LocalDate> availabeDatesForRenting;
 	
 	private List<LocalDateTime> rentedDates;
 	

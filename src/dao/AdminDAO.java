@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class AdminDAO {
 		loadAdmins();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void saveAdmins() {
 		System.out.println("saving admins");
 
@@ -43,7 +45,7 @@ public class AdminDAO {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-			//objectMapper.registerModule(new JavaTimeModule());
+			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			String string = objectMapper.writeValueAsString(this.admins);
 			fileWriter.write(string);
@@ -60,7 +62,7 @@ public class AdminDAO {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void loadAdmins() {
 		String loadPath = this.path + "admin.json";
         BufferedReader in = null;
@@ -77,7 +79,7 @@ public class AdminDAO {
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            objectMapper.registerModule(new JavaTimeModule());
             this.admins = (Map<String, Admin>) objectMapper.readValue(file, type);
         } catch (Exception e) {
             e.printStackTrace();

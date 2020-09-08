@@ -123,14 +123,18 @@ public class HostService {
 	private List<UserPreviewDTO> getUsersThatReservedApartment(String username) {
 		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
 		Host host = hostDAO.findHostByUsername(username);
+		List<UserPreviewDTO> usersDTO = new ArrayList<>();
 		List<Apartment> apartments = host.getApartmentsForRent();
 		
-		Map<String, User> users = new HashMap<>();
-		for(Apartment apartment : apartments) {
-			addUserFromEachReservation(apartment.getReservations(), users);
+		if(apartments != null) {
+			Map<String, User> users = new HashMap<>();
+			for(Apartment apartment : apartments) {
+				addUserFromEachReservation(apartment.getReservations(), users);
+			}
+			
+			usersDTO = makeUserDTO(users.values());
 		}
-		
-		List<UserPreviewDTO> usersDTO = makeUserDTO(users.values());
+
 		return usersDTO;
 	}
 	

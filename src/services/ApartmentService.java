@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -100,9 +99,7 @@ public class ApartmentService {
 		apartment.setDeleted(false);
 		apartment.setId(id);
 		
-		host.getApartmentsForRent().add(apartment);
-		hostDAO.saveHosts();
-		
+		hostDAO.addNewApartmentToHost(host, apartment);
 		
 		if(apartmentDAO.addNewApartment(apartment)) {
 			context.setAttribute("apartmentDAO", apartmentDAO);
@@ -354,9 +351,8 @@ public class ApartmentService {
 		return dates;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private Apartment addADatesForRentingToApartment(Apartment apartment, List<String> dates) {
-		List<Date> dateList = new ArrayList<>();
+		List<LocalDate> dateList = new ArrayList<>();
 		
 		for(String dateString : dates) {
 			String dateArray[] = dateString.split("/");
@@ -364,12 +360,10 @@ public class ApartmentService {
 			int month = Integer.parseInt(dateArray[1]) + 1;
 			int year = Integer.parseInt(dateArray[2]);
 			
-			Date date = new Date();
-			date.setDate(day);
-			date.setMonth(month);
-			date.setYear(year - 1900);
-			
+			LocalDate date =  LocalDate.of(year, month, day);
+		
 			dateList.add(date);
+			
 		}
 		
 		apartment.setAvailabeDatesForRenting(dateList);
@@ -471,9 +465,9 @@ public class ApartmentService {
 			}).collect(Collectors.toList());
 		
 		if(!dto.getAvailableDatesForRenting().equals("")) {
-			List<Date> date = getCheckInAndCheckoutDate(dto.getAvailableDatesForRenting());
-			Date checkIn = date.get(0);
-			Date checkOut = date.get(1);
+			List<LocalDate> date = getCheckInAndCheckoutDate(dto.getAvailableDatesForRenting());
+			LocalDate checkIn = date.get(0);
+			LocalDate checkOut = date.get(1);
 			apartments = apartments.stream().filter(apartment -> {
 				return apartmentIsAvailableFromUntil(apartment, checkIn, checkOut);
 			}).collect(Collectors.toList());
@@ -593,9 +587,8 @@ public class ApartmentService {
 		return true;
 	}
 	
-	@SuppressWarnings("deprecation")
-	private List<Date> getCheckInAndCheckoutDate(String dateStrings) {
-		List<Date> dates = new ArrayList<>();
+	private List<LocalDate> getCheckInAndCheckoutDate(String dateStrings) {
+		List<LocalDate> dates = new ArrayList<>();
 		String stringArray[] = dateStrings.split(",");
 		for(String dateString : stringArray) {
 			dateString = dateString.trim();
@@ -604,45 +597,24 @@ public class ApartmentService {
 			int month = Integer.parseInt(dateArray[1]) + 1;
 			int year = Integer.parseInt(dateArray[2]);
 			
-			Date date = new Date();
-			date.setDate(day);
-			date.setMonth(month);
-			date.setYear(year - 1900);
-			
+			LocalDate date = LocalDate.of(year, month, day);		
 			dates.add(date);
 		}
 		return dates;
 	}
 	
-	private boolean apartmentIsAvailableFromUntil(Apartment apartment, Date cIn, Date cOut) {
-		boolean available = true;
-		LocalDate checkIn = cIn.toInstant()
-			      .atZone(ZoneId.systemDefault())
-			      .toLocalDate();
-		LocalDate checkOut = cOut.toInstant()
-			      .atZone(ZoneId.systemDefault())
-			      .toLocalDate();
-		
+	private boolean apartmentIsAvailableFromUntil(Apartment apartment, LocalDate checkIn, LocalDate checkOut) {
 		long rentDuration = ChronoUnit.DAYS.between(checkIn, checkOut);
 		
-		Date current =  java.sql.Date.valueOf(checkIn);
+		LocalDate current = checkIn;
 		for(long i=0; i<rentDuration; i++) {
-			Calendar c = Calendar.getInstance(); 
-			c.setTime(current); 
-			c.add(Calendar.DATE, 1);
-			current = c.getTime();
-			
-			if(!apartment.getAvailabeDatesForRenting().contains(current)) {
-				available = false;
-			}
+			current = current.plusDays(i);
+			if(!apartment.getAvailabeDatesForRenting().contains(current))
+				return false;
 
-		
 		}
 		
-		
-		return available;
+		return true;
 	}
-	
-	
 	
 }

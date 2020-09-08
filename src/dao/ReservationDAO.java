@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +32,7 @@ public class ReservationDAO {
 		loadReservations();
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void loadReservations() {
 		String loadPath = this.path + "reservation.json";
         BufferedReader in = null;
@@ -47,6 +48,7 @@ public class ReservationDAO {
             MapType type = factory.constructMapType(HashMap.class, Long.class, Reservation.class);
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+            objectMapper.registerModule(new JavaTimeModule());
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             this.reservations = (Map<Long, Reservation>) objectMapper.readValue(file, type);
         } catch (Exception e) {
@@ -62,6 +64,7 @@ public class ReservationDAO {
         }
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void saveReservations() {
 		FileWriter fileWriter = null;
 		File file = null;
@@ -72,7 +75,7 @@ public class ReservationDAO {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-			//objectMapper.registerModule(new JavaTimeModule());
+			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			String string = objectMapper.writeValueAsString(this.reservations);
 			fileWriter.write(string);

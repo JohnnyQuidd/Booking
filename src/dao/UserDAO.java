@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class UserDAO {
 		loadUsers();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void saveUsers() {
 		System.out.println("saving users");
 
@@ -43,7 +45,7 @@ public class UserDAO {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 			objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-			//objectMapper.registerModule(new JavaTimeModule());
+			objectMapper.registerModule(new JavaTimeModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			String string = objectMapper.writeValueAsString(this.users);
 			fileWriter.write(string);
@@ -61,7 +63,7 @@ public class UserDAO {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	private void loadUsers() {
 		String loadPath = this.path + "user.json";
         BufferedReader in = null;
@@ -77,6 +79,7 @@ public class UserDAO {
             MapType type = factory.constructMapType(HashMap.class, String.class, User.class);
 
             objectMapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+            objectMapper.registerModule(new JavaTimeModule());
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             this.users = (Map<String, User>) objectMapper.readValue(file, type);
         } catch (Exception e) {
