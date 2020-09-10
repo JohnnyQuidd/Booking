@@ -1,11 +1,8 @@
 package model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +33,7 @@ public class Apartment {
 	
 	private List<LocalDate> availabeDatesForRenting;
 	
-	private List<LocalDateTime> rentedDates;
+	private List<LocalDate> rentedDates;
 	
 	private List<Comment> comments;
 	
@@ -44,7 +41,6 @@ public class Apartment {
 
 	private LocalTime checkOutTime;
 	
-	@JsonBackReference
 	private List<Reservation> reservations;
 	
 	private List<Amenity> amenities;

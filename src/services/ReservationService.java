@@ -1,9 +1,11 @@
 package services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -18,15 +20,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import dao.AdminDAO;
+import dao.ApartmentDAO;
 import dao.HostDAO;
 import dao.ReservationDAO;
 import dao.UserDAO;
+import dto.NewReservation;
 import dto.ReservationFilterDTO;
 import dto.ReservationSortingDTO;
 import model.Apartment;
 import model.Host;
 import model.Reservation;
 import model.ReservationStatus;
+import model.User;
 
 @Path("/reservation")
 public class ReservationService {
@@ -49,6 +54,39 @@ public class ReservationService {
 		if(context.getAttribute("adminDAO") == null)
 			context.setAttribute("adminDAO", new AdminDAO(context.getRealPath("")));
 		
+		if(context.getAttribute("apartmentDAO") == null)
+				context.setAttribute("apartmentDAO", new ApartmentDAO(context.getRealPath("")));
+		
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response createNewReservation(NewReservation dto, @Context HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("username");
+		UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(username);
+		
+		if(user == null)
+			return Response.status(403).entity("You have no permission to request a Reservation").build();
+		
+		Reservation reservation = makeReservationFromDTO(dto);
+		if(!apartmentAvailableForReservation(reservation))
+			return Response.status(401).entity("Apartment is not available for specified time").build();
+		
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		if(reservationDAO.addNewReservation(reservation)) {
+			
+			ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+			if(apartmentDAO.addNewReservation(reservation)) {
+				context.setAttribute("apartmentDAO", apartmentDAO);
+				context.setAttribute("reservationDAO", reservationDAO);
+				return Response.status(201).entity("Reservation successfully created").build();
+			}
+			return Response.status(500).entity("An error occurred while persisting apartment state").build();
+		}
+		
+		return Response.status(500).entity("An error occurred while persisting reservation").build();
 	}
 	
 	@Path("/sort")
@@ -122,6 +160,91 @@ public class ReservationService {
 		});
 		
 		return reservations;
+	}
+	
+	private Reservation makeReservationFromDTO(NewReservation dto) {
+		Reservation reservation = Reservation.builder().build();
+		UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(dto.getUsername());
+		reservation.setUser(user);
+		reservation.setApartmentId(dto.getApartmentId());
+		
+		Long id = 0L;
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		while(reservationDAO.getReservations().containsKey(id))
+			id = ThreadLocalRandom.current().nextLong(0, 65000);
+		
+		reservation.setId(id);
+		reservation.setMessage(dto.getMessage());
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		Apartment apartment = apartmentDAO.findApartmentById(dto.getApartmentId());
+		reservation.setPrice(apartment.getPricePerNight());
+		reservation.setReservationStatus(ReservationStatus.CREATED);
+		reservation.setNumberOfNights(dto.getNumberOfNights());
+		reservation.setActive(true);
+		
+		List<String> date = makeStringListOutOfString(dto.getDate());
+		LocalDate rentFrom = convertStringToDate(date.get(0));
+		LocalDate rentUntil = rentFrom.plusDays(dto.getNumberOfNights());
+		
+		reservation.setRentFrom(rentFrom);
+		reservation.setRentUntil(rentUntil);
+		
+		return reservation;
+	}
+	
+	private List<String> makeStringListOutOfString(String dateString) {
+		List<String> dates = new ArrayList<>();
+		String[] array = dateString.split(",");
+		
+		for(int i = 0; i<array.length; i++) {
+			dates.add(array[i].trim());
+		}
+		
+		return dates;
+	}
+	
+	private LocalDate convertStringToDate(String string) {
+		string = string.trim();
+		String dateArray[] = string.split("/");
+		int day = Integer.parseInt(dateArray[0]);
+		int month = Integer.parseInt(dateArray[1]) + 1;
+		int year = Integer.parseInt(dateArray[2]);
+		
+		LocalDate date =  LocalDate.of(year, month, day);
+		return date;
+	}
+	
+	private boolean apartmentAvailableForReservation(Reservation reservation) {
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		Apartment apartment = apartmentDAO.findApartmentById(reservation.getApartmentId());
+		if(apartment == null || apartment.getAvailabeDatesForRenting() == null)
+			return false;
+		
+		LocalDate current = reservation.getRentFrom();
+		for(int i=0; i<reservation.getNumberOfNights(); i++) {
+			current = current.plusDays(i);
+			if(!apartment.getAvailabeDatesForRenting().contains(current))
+				return false;
+		}
+		
+		boolean hasOverlapingReservation = apartmentHasOverlapingReservation(apartment, reservation);
+		
+		return true && !hasOverlapingReservation;
+	}
+	
+	
+	// I have to check each reservation individually rather than fetching rented dates which is never initialized in the first place
+	private boolean apartmentHasOverlapingReservation(Apartment apartment, Reservation reservation) {
+		if(apartment.getRentedDates() == null) return false;
+		
+		LocalDate current = reservation.getRentFrom();
+		for(int i=0; i<reservation.getNumberOfNights(); i++) {
+			current = current.plusDays(i);
+			if(apartment.getRentedDates().contains(current))
+				return true;
+		}
+		return false;
 	}
 	
 	

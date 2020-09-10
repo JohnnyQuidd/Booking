@@ -122,4 +122,18 @@ public class HostDAO {
 		host.getApartmentsForRent().add(apartment);
 		saveHosts();
 	}
+	
+	public boolean deleteApartmentWithId(Long id) {
+		for(Host host : this.hosts.values()) {
+			for(Apartment apartment : host.getApartmentsForRent()) {
+				if(apartment.getId().equals(id)) {
+					apartment.setDeleted(true);
+					saveHosts();
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 }

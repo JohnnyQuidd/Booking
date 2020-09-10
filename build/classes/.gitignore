@@ -1,3 +1,5 @@
-/model/
 /dao/
+/dto/
+/model/
 /services/
+/util/

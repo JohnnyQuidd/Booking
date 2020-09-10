@@ -21,6 +21,10 @@ $(document).ready(() => {
         window.location.href = 'amenities.html';
     });
 
+    $('#apartmentsButton').click(() => {
+        window.location.href = 'managingApartments.html';
+    });
+
     $('#addHost').click(() => {
         let username = $('#username').val();
         let firstName = $('#firstName').val();

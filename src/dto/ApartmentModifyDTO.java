@@ -1,7 +1,5 @@
 package dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +11,6 @@ import lombok.Setter;
 import model.Amenity;
 import model.ApartmentStatus;
 import model.ApartmentType;
-import model.Location;
-import model.Reservation;
 
 @Getter
 @Setter
@@ -27,19 +23,19 @@ public class ApartmentModifyDTO {
 	private ApartmentType apartmentType;
 	private int numberOfRooms;
 	private int numberOfGuests;
-	private Location location;
 	private ApartmentStatus status;
 	private double pricePerNight;
+	private String availableDatesForRenting;
 	
-	@Builder.Default
-	private List<LocalDate> availabeDatesForRenting = new ArrayList<>();
+	// Address
+	private String street;
+	private int number;
+	private String city;
+	private int zipCode;
+	// Other location related fields
+	private double latitude;
+	private double longitude;
 	
-	@Builder.Default
-	private List<LocalDateTime> rentedDates = new ArrayList<>();
-
-	
-	@Builder.Default
-	private List<Reservation> reservations = new ArrayList<>();
 	
 	@Builder.Default
 	private List<Amenity> amenities = new ArrayList<>();

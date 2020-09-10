@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ import lombok.Getter;
 import lombok.Setter;
 import model.Amenity;
 import model.Apartment;
+import model.ApartmentStatus;
+import model.Reservation;
 
 @Getter
 @Setter
@@ -136,6 +139,34 @@ public class ApartmentDAO {
 	public void removeDeletedAmenityFromEveryApartment(Amenity deletedAmenity) {
 		for(Apartment apartment : apartments.values()) {
 			apartment.getAmenities().remove(deletedAmenity);
+		}
+	}
+	
+	public boolean activateApartment(Apartment apartment) {
+		try {
+			apartment.setStatus(ApartmentStatus.ACTIVE);
+			saveApartments();
+			return true;
+		} catch(Exception e) {
+			System.out.println("Couldn't activate apartment and persist it: " + e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean addNewReservation(Reservation reservation) {
+		Apartment apartment = findApartmentById(reservation.getId());
+		if(apartment == null) return false;
+		
+		try {
+			if(apartment.getReservations() == null)
+				apartment.setReservations(new ArrayList<>());
+			
+			apartment.getReservations().add(reservation);
+			saveApartments();
+			return true;
+		} catch(Exception e) {
+			System.out.println("Couldn't save Apartments when a Reservation is added" + e.getMessage());
+			return false;
 		}
 	}
 	

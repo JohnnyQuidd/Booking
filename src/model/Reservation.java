@@ -1,6 +1,6 @@
 package model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,11 +18,9 @@ import lombok.Setter;
 public class Reservation {
 	private Long id;
 	private User user;
-	private Host host;
-	private Apartment apartment;
-	private LocalDateTime rentFrom;
-	private LocalDateTime rentUntil;
-	private LocalDateTime reservationDate;
+	private Long apartmentId;
+	private LocalDate rentFrom;
+	private LocalDate rentUntil;
 	private String message;
 	private double price;
 	private boolean active;

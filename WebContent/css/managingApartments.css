@@ -1,0 +1,58 @@
+#headline1 {
+	margin-top: -10px;
+	margin-bottom: 30px;
+}
+
+.apartment {
+	width: 50%;
+	height: 260px;
+	margin: 0px auto 30px auto;
+	position: relative;
+	border: 1px solid rgba(27, 187, 174, 0.6);
+	box-shadow: 3px 5px rgba(136, 136, 138, 0.5);
+}
+
+.apartmentPreview {
+	position: absolute;
+	height: 250px;
+	width: 400px;
+	top: 5px;
+	left: 5px;
+}
+
+.apartmentName {
+	position: absolute;
+	left: 60%;
+	font-size: 30px;
+	font-weight: 600;
+}
+
+.numberOfGuests {
+	position: absolute;
+	left: 60%;
+	top: 15%;
+}
+
+.numberOfRooms{
+	position: absolute;
+	left: 60%;
+	top: 30%;
+}
+
+.pricePerNight {
+	position: absolute;
+	left: 60%;
+	top: 45%;
+}
+
+.location {
+	position: absolute;
+	left: 60%;
+	top: 60%;
+}
+
+.btn-secondary {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+}

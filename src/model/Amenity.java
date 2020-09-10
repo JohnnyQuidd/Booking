@@ -17,4 +17,9 @@ public class Amenity {
 	private Long id;
 	private String amenity;
 	private boolean active;
+	
+	public Amenity(String amenity) {
+		this.amenity = amenity;
+		this.active = true;
+	}
 }

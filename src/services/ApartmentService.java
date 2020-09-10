@@ -1,12 +1,10 @@
 package services;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,6 +17,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -109,6 +108,28 @@ public class ApartmentService {
 		return Response.status(500).entity("An error occurred while saving apartment").build();
 	}
 	
+	@Path("/activate/{apartmentId}")
+	@PUT
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response activateApartment(@PathParam("apartmentId") Long id, @Context HttpServletRequest request) {
+		if(!request.getSession().getAttribute("role").equals("admin"))
+			return Response.status(403).entity("You have no permission to modify apartment's status").build();
+		
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		Apartment apartment = apartmentDAO.findApartmentById(id);
+		
+		if(apartment == null || apartment.isDeleted())
+			return Response.status(404).entity("Apartment not found").build();
+		
+		if(apartmentDAO.activateApartment(apartment)) {
+			context.setAttribute("apartmentDAO", apartmentDAO);
+			return Response.status(200).entity("Apartment activated").build();
+		}
+			
+		
+		return Response.status(500).entity("Apartment couldn't be persisted").build();
+	}
+	
 
 
 	@Path("/all")
@@ -117,6 +138,8 @@ public class ApartmentService {
 	public Response getAllAparments() {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
+		
+		apartments = apartments.stream().filter(apartment -> !apartment.isDeleted()).collect(Collectors.toList());
 		
 		return Response.status(200).entity(apartments).build();
 	}
@@ -132,13 +155,30 @@ public class ApartmentService {
 		return Response.status(200).entity(apartments).build();
 	}
 	
+	@Path("/inactive")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllInactiveApartments(@Context HttpServletRequest request) {
+		if(!request.getSession().getAttribute("role").equals("admin"))
+			return Response.status(403).entity("You have no permission to preview inactive apartments").build();
+		
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
+		
+		apartments = apartments.stream().filter(apartment -> {
+			return apartment.getStatus().equals(ApartmentStatus.INACTIVE) && !apartment.isDeleted();
+		}).collect(Collectors.toList());
+		
+		return Response.status(200).entity(apartments).build();
+	}
+	
 	@Path("/{apartmentID}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getActiveApartmentForProidedName(@PathParam("apartmentID") Long apartmentID) {
+	public Response getApartmentForProidedId(@PathParam("apartmentID") Long apartmentID) {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
-		//Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
-		Collection<Apartment> apartments = getAllApartments();
+		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
+		
 		
 		apartments = apartments.stream().filter(apartment -> {
 			return apartment.getId().equals(apartmentID);
@@ -160,7 +200,7 @@ public class ApartmentService {
 		
 		Collection<Apartment> apartments = host.getApartmentsForRent();
 		apartments = apartments.stream().filter(apartment -> {
-			return apartment.getStatus().equals(ApartmentStatus.ACTIVE);
+			return apartment.getStatus().equals(ApartmentStatus.ACTIVE) && !apartment.isDeleted();
 		}).collect(Collectors.toList());
 		
 		return Response.status(200).entity(apartments).build();
@@ -178,22 +218,27 @@ public class ApartmentService {
 		
 		Collection<Apartment> apartments = host.getApartmentsForRent();
 		apartments = apartments.stream().filter(apartment -> {
-			return apartment.getStatus().equals(ApartmentStatus.INACTIVE);
+			return apartment.getStatus().equals(ApartmentStatus.INACTIVE) && !apartment.isDeleted();
 		}).collect(Collectors.toList());
 		
 		return Response.status(200).entity(apartments).build();
 	}
 	
-	@Path("/{aparmentID}")
+	@Path("/{apartmentID}")
 	@DELETE
 	public Response deleteApartmentById(@PathParam("apartmentID") Long id, @Context HttpServletRequest request) {
 		String role = (String) request.getSession().getAttribute("role");
 		String username = (String) request.getSession().getAttribute("username");
+		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
 		
 		if(role.equals("admin") || isHostOfAnApartment(username, id)) {
 			ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 			if(apartmentDAO.deleteApartment(id)) {
-				return Response.status(200).entity("OK").build();
+				if(hostDAO.deleteApartmentWithId(id)) {
+					context.setAttribute("apartmentDAO", apartmentDAO);
+					return Response.status(203).entity("Apartment deleted successfully").build();
+				}
+				return Response.status(500).entity("Error occurred while deleting apartments").build();
 			}
 			return Response.status(404).entity("Apartment not found").build();
 		}
@@ -203,13 +248,22 @@ public class ApartmentService {
 	@Path("/modify")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response modifyExistingApartment(ApartmentModifyDTO apartmentDTO) {
+	public Response modifyExistingApartment(ApartmentModifyDTO apartmentDTO, @Context HttpServletRequest request) {
+		String username = (String) request.getSession().getAttribute("username");
+		String role = (String) request.getSession().getAttribute("role");
+		Long apartmentID = apartmentDTO.getId();
+		
+		if(!role.equals("admin") && !isHostOfAnApartment(username, apartmentID))
+			return Response.status(403).entity("You have no permission to modify apartment").build();
+		
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 		Apartment apartment = apartmentDAO.findApartmentById(apartmentDTO.getId());
-		if(apartment !=null) {
-			modifyApartment(apartment, apartmentDTO);
-			if(apartmentDAO.modifyApartment(apartment))
+		if(apartment !=null && !apartment.isDeleted()) {
+			apartment = modifyApartment(apartment, apartmentDTO);
+			if(apartmentDAO.modifyApartment(apartment)) {
 				return Response.status(200).entity("OK").build();
+			}
+				
 			
 			return Response.status(500).entity("Server error has occurred").build();
 		}
@@ -222,8 +276,7 @@ public class ApartmentService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response searchApartments(ApartmentSearchDTO searchDTO) {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
-		//Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
-		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
+		Collection<Apartment> apartments = getAllActiveApartments(apartmentDAO);
 		
 		apartments = applySearchToCollection(apartments, searchDTO);
 		
@@ -375,10 +428,10 @@ public class ApartmentService {
 		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
 		Host host = hostDAO.findHostByUsername(username);
 		
-		if(host == null) return false;
-		
+		if(host == null || host.getApartmentsForRent() == null) return false;
+
 		for(Apartment apartment : host.getApartmentsForRent()) {
-			if(apartment.getId() == id)
+			if(apartment.getId().equals(id))
 				return true;
 		}
 		
@@ -389,7 +442,7 @@ public class ApartmentService {
 		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
 		
 		apartments = apartments.stream().filter(apartment -> {
-			return apartment.getStatus().equals(ApartmentStatus.ACTIVE);
+			return apartment.getStatus().equals(ApartmentStatus.ACTIVE) && !apartment.isDeleted();
 		}).collect(Collectors.toList());
 		
 		return apartments;
@@ -399,10 +452,12 @@ public class ApartmentService {
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 		Collection<Apartment> apartments = apartmentDAO.getApartments().values();
 		
+		apartments = apartments.stream().filter(apartment -> !apartment.isDeleted()).collect(Collectors.toList());
+		
 		return apartments;
 	}
 	
-	private void modifyApartment(Apartment apartment, ApartmentModifyDTO dto) {
+	private Apartment modifyApartment(Apartment apartment, ApartmentModifyDTO dto) {
 		if(!dto.getApartmentName().equals(""))
 			apartment.setApartmentName(dto.getApartmentName());
 		
@@ -415,8 +470,16 @@ public class ApartmentService {
 		if(dto.getNumberOfGuests() != apartment.getNumberOfGuests())
 			apartment.setNumberOfGuests(dto.getNumberOfGuests());
 		
-		if(dto.getLocation() != null && dto.getLocation() != apartment.getLocation()) 
-			apartment.setLocation(dto.getLocation());
+
+		if(!dto.getCity().equals("") && !dto.getStreet().equals("")) {
+			apartment.getLocation().getAddress().setCity(dto.getCity());
+			apartment.getLocation().getAddress().setStreet(dto.getStreet());
+			apartment.getLocation().getAddress().setZipCode(dto.getZipCode());
+			apartment.getLocation().getAddress().setNumber(dto.getNumber());
+			
+			apartment.getLocation().setLongitude(dto.getLongitude());
+			apartment.getLocation().setLattitude(dto.getLatitude());
+		}
 		
 		if(dto.getStatus() != null && dto.getStatus() != apartment.getStatus())
 			apartment.setStatus(dto.getStatus());
@@ -424,20 +487,19 @@ public class ApartmentService {
 		if(dto.getPricePerNight() != apartment.getPricePerNight())
 			apartment.setPricePerNight(dto.getPricePerNight());
 		
-		if(dto.getAvailabeDatesForRenting() != null) 
-			apartment.setAvailabeDatesForRenting(dto.getAvailabeDatesForRenting());
-		
-		if(dto.getRentedDates() != null) 
-			apartment.setRentedDates(dto.getRentedDates());
-		
-		if(dto.getReservations() != null)
-			apartment.setReservations(dto.getReservations());
+		if(dto.getAvailableDatesForRenting() != null) {
+			List<String> dates = makeStringListOutOfString(dto.getAvailableDatesForRenting());
+			apartment = addADatesForRentingToApartment(apartment, dates);
+		}
+			
 		
 		if(dto.getAmenities() != null)
 			apartment.setAmenities(dto.getAmenities());
 		
 		if(dto.getImages() != null)
 			apartment.setImages(dto.getImages());
+		
+		return apartment;
 	}
 	
 	private Collection<Apartment> applySearchToCollection(Collection<Apartment> apartments, ApartmentSearchDTO dto) {
@@ -541,8 +603,8 @@ public class ApartmentService {
 		if(host != null)
 			apartments = host.getApartmentsForRent();
 		
-		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE))
-				.collect(Collectors.toList());
+		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE) 
+															&& !apartment.isDeleted()).collect(Collectors.toList());
 		
 		return apartments;
 	}

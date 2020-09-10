@@ -110,7 +110,7 @@ $(document).on("click", ".btn-secondary", function() {
 
 function fetchApartments() {
     $.get({
-        url: 'rest/apartment/all',
+        url: 'rest/apartment/active',
         dataType: 'json',
         success: response => {
             apartments = response;
