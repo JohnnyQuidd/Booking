@@ -2,9 +2,9 @@ package services;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -112,7 +112,7 @@ public class HostService {
 														@PathParam("username") String username) {
 		List<UserPreviewDTO> users = getUsersThatReservedApartment(hostUsername);
 		
-		users.stream().filter(userDTO -> userDTO.getUsername().equals(username));
+		users = users.stream().filter(userDTO -> userDTO.getUsername().equals(username)).collect(Collectors.toList());
 		
 		if(users.size() > 0)
 			return Response.status(200).entity(users).build();
@@ -127,9 +127,10 @@ public class HostService {
 		List<Apartment> apartments = host.getApartmentsForRent();
 		
 		if(apartments != null) {
-			Map<String, User> users = new HashMap<>();
+			UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
+			Map<String, User> users = userDAO.getUsers();
 			for(Apartment apartment : apartments) {
-				addUserFromEachReservation(apartment.getReservations(), users);
+				users = addUserFromEachReservation(apartment.getReservations(), users);
 			}
 			
 			usersDTO = makeUserDTO(users.values());
@@ -138,14 +139,16 @@ public class HostService {
 		return usersDTO;
 	}
 	
-	private void addUserFromEachReservation(List<Reservation> reservations, Map<String, User> users) {
+	private Map<String, User> addUserFromEachReservation(List<Reservation> reservations, Map<String, User> users) {
 		if(reservations != null && users != null) {
 			for(Reservation reservation : reservations) {
 				if(!users.containsKey(reservation.getUser().getUsername())) {
 					users.put(reservation.getUser().getUsername(), reservation.getUser());
 				}
+				
 			}
 		}
+		return users;
 	}
 	
 	private List<UserPreviewDTO> makeUserDTO(Collection<User> users) {

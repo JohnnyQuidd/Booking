@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -136,4 +137,18 @@ public class HostDAO {
 		
 		return false;
 	}
+	
+	public List<Long> getApartmentIDsForHostUsername(String username) {
+		List<Long> list = new ArrayList<>();
+		Host host = findHostByUsername(username);
+		if(host == null) return list;
+		
+		for(Apartment apartment : host.getApartmentsForRent()) {
+			list.add(apartment.getId());
+		}
+		
+		return list;
+	}
+	
+	
 }

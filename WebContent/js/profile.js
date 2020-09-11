@@ -1,6 +1,7 @@
 $(document).ready(() => {
     let username = localStorage.getItem('username');
     fetchDataForUser(username);
+    fetchReservations();
 
 	$('#submit').click(() => {
         let username = $('#username').val();
@@ -33,6 +34,65 @@ $(document).ready(() => {
 	});
 
 });
+
+$(document).on('click', '.btn-danger', function() {
+    let instruction = $(this).attr("id");
+    let requestID = instruction.substr(6, instruction.length);
+
+    $.ajax({
+        url: '../rest/reservation/cancel/' + requestID,
+        type: 'PUT',
+        success: function(response) {
+            alert(response)
+            window.location.href = 'profile.html';
+        },
+        error : function (response) {
+            alert(response.responseText);
+        }
+    });
+});
+
+function fetchReservations() {
+    let username = localStorage.getItem('username');
+    $.get({
+        url: '../rest/reservation/user/' + username,
+        dataType: 'json',
+        success: response => {
+            appendReservationTable(response);
+        },
+        error: err => {
+            alert(err.responseText);
+        }
+    });
+ 
+}
+
+function appendReservationTable(reservations) {
+    let i;
+    for(i=0; i<reservations.length; i++) {
+        $('#reservationsTable tr:last').after(`
+            <tr>
+                <th scope="row">` + (i+1) + ` </th>
+                <td>` + reservations[i].username +`</td>
+                <td>` + reservations[i].apartmentName +`</td>
+                <td>` + reservations[i].message +`</td>
+                <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
+                <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+                <td>` + showStatus(reservations[i].reservationStatus, reservations[i].id) + `</td>
+            </tr>
+        `);
+    }
+}
+
+function prettifyDate(date) {
+    return date.dayOfMonth + "/" + date.monthValue + "/" + date.year;
+}
+
+function showStatus(status, id) {
+    if(status === 'CREATED')
+        return "<button id='delete"+id+ "' class='btn btn-danger'> Cancel request</button>";
+    return status;
+}
 
 function fetchDataForUser(username) {
     $.get({

@@ -1,5 +1,6 @@
 $(document).ready(() => {
     fetchUsers();
+    fetchReservations();
     
     $('#searchButton').click(() => {
         let username = $('#searchField').val();
@@ -65,6 +66,41 @@ $(document).ready(() => {
         
     });
 });
+
+function fetchReservations() {
+    $.get({
+        url: '../rest/reservation',
+        dataType: 'json',
+        success: response => {
+            appendReservationTable(response);
+        },
+        error: err => {
+            alert(err.responseText);
+        }
+    });
+ 
+}
+
+function appendReservationTable(reservations) {
+    let i;
+    for(i=0; i<reservations.length; i++) {
+        $('#reservationsTable tr:last').after(`
+            <tr>
+                <th scope="row">` + (i+1) + ` </th>
+                <td>` + reservations[i].username +`</td>
+                <td>` + reservations[i].apartmentName +`</td>
+                <td>` + reservations[i].message +`</td>
+                <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
+                <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+				<td>` + reservations[i].reservationStatus +`</td>
+            </tr>
+        `);
+    }
+}
+
+function prettifyDate(date) {
+    return date.dayOfMonth + "/" + date.monthValue + "/" + date.year;
+}
 
 function fetchUsers() {
     $.get({

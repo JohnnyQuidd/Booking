@@ -37,3 +37,18 @@
 #searchButton {
 	margin-left: 10px;
 }
+
+#hr {
+	width: 60%;
+	margin: 0 auto;
+}
+
+#pendingReservations {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.btn-danger {
+	margin-left: 5px;
+}
+

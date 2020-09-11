@@ -102,4 +102,26 @@ public class ReservationDAO {
 			return false;
 		}
 	}
+	
+	public Reservation findReservationById(Long id) {
+		for(Reservation reservation : this.reservations.values()) {
+			if(reservation.getId().equals(id))
+				return reservation;
+		}
+		
+		return null;
+	}
+	
+	public boolean updateReservation(Reservation reservation) {
+		try {
+			Reservation old = this.findReservationById(reservation.getId());
+			this.reservations.remove(old.getId());
+			this.reservations.put(reservation.getId(), reservation);
+			saveReservations();
+			return true;
+		} catch(Exception e) {
+			System.out.println("Couldn't save reservations");
+			return false;
+		}
+	}
 }
