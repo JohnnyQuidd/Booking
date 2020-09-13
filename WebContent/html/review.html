@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../global-css.css">
+    <link rel="stylesheet" href="../css/review.css">
+    <script src="../js/review.js"></script>
+    <title>Review</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+        <a class="nav-link" href="../index.html">Booking</a>
+	</nav>
+    <div class="jumbotron">
+        <div class="text-center">
+            <h3 id="listHeadline">List of finished or declined reservations</h3>
+
+              <table class="table table-hover" id="reservationsTable">
+                <thead class="thead-inverse">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Apartment</th>
+                      <th scope="col">Message</th>
+                      <th scope="col">From</th>
+                      <th scope="col">Until</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reservations-body">
+                  </tbody>
+              </table>
+
+            <!-- Modal -->
+            <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Leave a comment and a mark</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" type="text" placeholder="Comment..." id="text">
+                    
+                    <select name="rating" id="rating" class="form-control">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="postAReview">Post a review</button>
+                </div>
+            </div>
+            </div>
+        </div>
+              
+        </div>
+    </div>
+    </div>
+</body>
+</html>

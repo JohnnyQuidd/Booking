@@ -1,6 +1,4 @@
-package model;
-
-import java.time.LocalDateTime;
+package dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,13 +13,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Comment {
-	private Long id;
+public class NewCommentDTO {
 	private String username;
-	private String host;
 	private String text;
 	private Long apartmentId;
-	private CommentStatus status;
 	private int rating;
-	private LocalDateTime timestamp;
 }

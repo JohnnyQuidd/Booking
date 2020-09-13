@@ -31,7 +31,12 @@ $(document).ready(() => {
         } else {
             showWarnings(firstName, lastName, password, password2);
         }
-	});
+    });
+    
+
+    $('#review').click(() => {
+        window.location.href = 'review.html';
+    });
 
 });
 

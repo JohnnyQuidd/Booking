@@ -167,6 +167,29 @@ public class ReservationService {
 		return Response.status(200).build();
 	}
 	
+	@Path("/review/{username}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getFinishedAndDeclinedReservations(@PathParam("username") String username) {
+		UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(username);
+		
+		if(user == null) return Response.status(404).entity("User not found").build();
+		
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		Collection<Reservation> reservations = reservationDAO.getReservations().values();
+		
+		reservations = reservations.stream().filter(reservation -> {
+			return reservation.getUser().getUsername().equals(username) && 
+					(reservation.getReservationStatus().equals(ReservationStatus.FINISHED) ||
+					 reservation.getReservationStatus().equals(ReservationStatus.DECLINED));
+		}).collect(Collectors.toList());
+		
+		Collection<ReservationPreviewDTO> dtos = formDtosOutOfModel(reservations);
+		
+		return Response.status(200).entity(dtos).build();
+	}
+	
 	@Path("/other/{hostUsername}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
