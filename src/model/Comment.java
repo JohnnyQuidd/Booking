@@ -21,6 +21,7 @@ public class Comment {
 	private String host;
 	private String text;
 	private Long apartmentId;
+	private String apartmentName;
 	private CommentStatus status;
 	private int rating;
 	private LocalDateTime timestamp;

@@ -1,7 +1,7 @@
 $(document).ready(() => {
     fetchReservations();
 
-    $('#postAReview').click(() => {
+    $('#post').click(() => {
         let text = $('#text').val();
         let rating = $('#rating').val();
         let username = localStorage.getItem('username');
@@ -54,7 +54,7 @@ function appendReservationTable(reservations) {
                 <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
                 <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
                 <td>` + reservations[i].reservationStatus +`</td>
-                <td><button id="`+ reservations[i].id + `" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal"> Review</button></td>
+                <td><button id="`+ reservations[i].apartmentId + `" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal"> Review</button></td>
             </tr>
         `);
     }

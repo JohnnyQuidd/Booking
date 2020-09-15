@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -74,6 +75,7 @@ public class CommentService {
 								 .rating(commentDTO.getRating())
 								 .id(id)
 								 .host(apartment.getHostName())
+								 .apartmentName(apartment.getApartmentName())
 								 .status(CommentStatus.CREATED)
 								 .timestamp(LocalDateTime.now())
 								 .build();
@@ -86,29 +88,92 @@ public class CommentService {
 	}
 	
 	@GET
-	@Path("/created/apartment/{apartmentID}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCommentsForApartment(@PathParam("apartmentID") Long apartmentID) {
+	public Response getComments(@Context HttpServletRequest request) {
+		String role = (String) request.getSession().getAttribute("role");
+		
+		if(!role.equals("admin")) return Response.status(403).entity("You have no permission to see all comments").build();
+		
+		CommentDAO commentDAO = (CommentDAO) context.getAttribute("commentDAO");
+		Collection<Comment> comments = commentDAO.getComments().values();
+		return Response.status(200).entity(comments).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/approved/apartment/{apartmentId}")
+	public Response getApprovedCommentsForApartment(@PathParam("apartmentId") Long apartmentId) {
 		CommentDAO commentDAO = (CommentDAO) context.getAttribute("commentDAO");
 		Collection<Comment> comments = commentDAO.getComments().values();
 		
-		comments = comments.stream().filter(comment -> comment.getApartmentId().equals(apartmentID)).collect(Collectors.toList());
-		
+		comments = comments.stream().filter(comment -> {
+			return comment.getApartmentId().equals(apartmentId) && comment.getStatus().equals(CommentStatus.APPROVED);
+		}).collect(Collectors.toList());
 		
 		return Response.status(200).entity(comments).build();
 	}
 	
 	@GET
-	@Path("/host/{username}")
+	@Path("/created/host/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCommentsForHost(@PathParam("username") String username) {
+	public Response getCreatedCommentsForHost(@PathParam("username") String username) {
 		CommentDAO commentDAO = (CommentDAO) context.getAttribute("commentDAO");
 		Collection<Comment> comments = commentDAO.getComments().values();
 		
-		comments = comments.stream().filter(comment -> comment.getHost().equals(username)).collect(Collectors.toList());
+		comments = comments.stream().filter(comment -> {
+			return comment.getHost().equals(username) && comment.getStatus().equals(CommentStatus.CREATED);
+		}).collect(Collectors.toList());
 		
 		
 		return Response.status(200).entity(comments).build();
+	}
+	
+	@PUT
+	@Path("/approve/{id}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response approveComment(@PathParam("id") Long id, @Context HttpServletRequest request) {
+		String role = (String) request.getSession().getAttribute("role");
+		String username = (String) request.getSession().getAttribute("username");
+		CommentDAO commentDAO = (CommentDAO) context.getAttribute("commentDAO");
+		
+		Comment comment = commentDAO.findCommentById(id);
+		
+		if(!role.equals("admin") && !username.equals(comment.getHost())) 
+			return Response.status(403).entity("You have no permission to modify comment state").build();
+		
+		if(comment == null) return Response.status(404).entity("Comment not found").build();
+		
+		comment.setStatus(CommentStatus.APPROVED);
+		if(commentDAO.modifyComment(comment)) {
+			context.setAttribute("commentDAO", commentDAO);
+			return Response.status(200).entity("Comment approved").build();
+		}
+		
+		return Response.status(500).entity("An error occurred while persisting comments").build();
+	}
+	
+	@PUT
+	@Path("/decline/{id}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response declineComment(@PathParam("id") Long id, @Context HttpServletRequest request) {
+		String role = (String) request.getSession().getAttribute("role");
+		String username = (String) request.getSession().getAttribute("username");
+		CommentDAO commentDAO = (CommentDAO) context.getAttribute("commentDAO");
+		
+		Comment comment = commentDAO.findCommentById(id);
+		
+		if(!role.equals("admin") && !username.equals(comment.getHost())) 
+			return Response.status(403).entity("You have no permission to modify comment state").build();
+		
+		if(comment == null) return Response.status(404).entity("Comment not found").build();
+		
+		comment.setStatus(CommentStatus.DECLINED);
+		if(commentDAO.modifyComment(comment)) {
+			context.setAttribute("commentDAO", commentDAO);
+			return Response.status(200).entity("Comment declined").build();
+		}
+		
+		return Response.status(500).entity("An error occurred while persisting comments").build();
 	}
 	
 	

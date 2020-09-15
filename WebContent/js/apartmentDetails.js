@@ -1,5 +1,6 @@
 $(document).ready(() => {
     fetchApartment();
+    fetchDetails();
 
     $('.date').flatpickr({  
         dateFormat: "d/m/Y"
@@ -34,6 +35,33 @@ $(document).ready(() => {
 
     });
 });
+
+function fetchDetails() {
+    let apartmentId = localStorage.getItem('apartmentId');
+    $.get({
+        url: '../rest/comment/approved/apartment/' + apartmentId,
+        dataType: 'json',
+        success: response => {
+            renderComments(response);
+        },
+        error: response => {
+            alert(response);
+        }
+    });
+}
+
+function renderComments(comments) {
+    for(let i=0; i<comments.length; i++) {
+        $('.commentSection').append(`
+            <div class="comment">
+                <p class="text">${comments[i].text}</p>
+                <p class="rating">Rating: ${comments[i].rating}/10</p>
+                <p class="username"> Posted by ${comments[i].username}</p>
+                <p class="timestamp">Posted on ${comments[i].timestamp.dayOfMonth + "/" + comments[i].timestamp.monthValue + "/" + comments[i].timestamp.year}</p>
+            </div>
+        `);
+    }
+}
 
 function validFields(username, apartmentId, message, numberOfNights, date) {
     return username.length > 0 && apartmentId !== undefined && message.length > 0

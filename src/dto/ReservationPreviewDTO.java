@@ -23,5 +23,6 @@ public class ReservationPreviewDTO {
 	private LocalDate rentFrom;
 	private LocalDate rentUntil;
 	private String message;
+	private Long apartmentId;
 	private ReservationStatus reservationStatus;
 }

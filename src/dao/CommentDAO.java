@@ -103,6 +103,25 @@ public class CommentDAO {
 		}
 	}
 	
+	public Comment findCommentById(Long id) {
+		for(Comment comment : this.comments.values()) {
+			if(comment.getId().equals(id))
+				return comment;
+		}
+		
+		return null;
+	}
 	
+	public boolean modifyComment(Comment comment) {
+		try {
+			comments.remove(comment.getId());
+			comments.put(comment.getId(), comment);
+			saveComments();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 }

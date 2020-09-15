@@ -93,6 +93,13 @@ public class ReservationService {
 			
 			ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 			if(apartmentDAO.addNewReservation(reservation)) {
+				Apartment apartment = apartmentDAO.findApartmentById(dto.getApartmentId());
+				
+				HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
+				Host host = hostDAO.findHostByUsername(apartment.getHostName());
+				hostDAO.addNewUsername(host, dto.getUsername());
+				
+				context.setAttribute("hostDAO", hostDAO);
 				context.setAttribute("apartmentDAO", apartmentDAO);
 				context.setAttribute("reservationDAO", reservationDAO);
 				return Response.status(201).entity("Reservation successfully created").build();
@@ -440,6 +447,7 @@ public class ReservationService {
 					.reservationStatus(reservation.getReservationStatus())
 					.apartmentName(apartment.getApartmentName())
 					.id(reservation.getId())
+					.apartmentId(apartment.getId())
 					.build();
 			
 			dtos.add(dto);

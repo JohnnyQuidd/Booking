@@ -30,7 +30,7 @@ public class Apartment {
 	private double pricePerNight;
 	private String hostName;
 	private boolean deleted;
-	
+		
 	private List<LocalDate> availabeDatesForRenting;
 	
 	private List<LocalDate> rentedDates;

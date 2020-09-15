@@ -16,3 +16,8 @@
 #addAmenity {
 	margin-left: 10px;
 }
+
+#amenity {
+    width: 80%;
+    margin: 10px auto 20px auto;
+}

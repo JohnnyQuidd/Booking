@@ -154,7 +154,7 @@ public class ApartmentDAO {
 	}
 	
 	public boolean addNewReservation(Reservation reservation) {
-		Apartment apartment = findApartmentById(reservation.getId());
+		Apartment apartment = findApartmentById(reservation.getApartmentId());
 		if(apartment == null) return false;
 		
 		try {
@@ -168,6 +168,19 @@ public class ApartmentDAO {
 			System.out.println("Couldn't save Apartments when a Reservation is added" + e.getMessage());
 			return false;
 		}
+	}
+	
+	public void updateAmenityName(Amenity newAmenity) {
+		for(Apartment apartment : apartments.values()) {
+			for(Amenity amenity : apartment.getAmenities()) {
+				if(amenity.getId().equals(newAmenity.getId())) {
+					amenity.setAmenity(newAmenity.getAmenity());
+					break;
+				}
+			}
+		}
+		
+		saveApartments();
 	}
 	
 }

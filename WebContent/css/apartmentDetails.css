@@ -1,6 +1,5 @@
 .container {
     position: relative;
-    border: 1px solid #8888;
     height: 2000px;
 }
 
@@ -118,3 +117,59 @@ img {
     width: 80%;
     margin: 5px auto;
 }
+
+#commentHeadline {
+	margin-top: 100px;
+	margin-bottom: 10px;
+}
+
+.commentSection {
+	margin-top: 50px;
+    height: 300px;
+    width: 100%;
+}
+
+.comment {
+	width: 80%;
+	margin: 0 auto;
+    border: 1px solid rgba(27, 187, 174, 0.6);
+	box-shadow: 3px 5px rgba(136, 136, 138, 0.5);
+    position: relative;
+    height: 200px;
+}
+
+.text {
+	position: absolute;
+	top: 5px;
+	left: 45%;
+}
+
+.timestamp {
+	position: absolute;
+	bottom: 1px;
+	left: 10px;
+}
+
+.rating {
+	position: absolute;
+	bottom: 1px;
+	left: 45%;
+}
+
+.username {
+	position: absolute;
+	bottom: 1px;
+	right: 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -150,5 +150,23 @@ public class HostDAO {
 		return list;
 	}
 	
+	public void updateHost(Host host) {
+		try {
+			hosts.remove(host.getUsername());
+			hosts.put(host.getUsername(), host);
+			saveHosts();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addNewUsername(Host host, String username) {
+		if(host.getUsersThatRented() == null)
+			host.setUsersThatRented(new ArrayList<>());
+		
+		host.getUsersThatRented().add(username);
+		updateHost(host);
+	}
+	
 	
 }

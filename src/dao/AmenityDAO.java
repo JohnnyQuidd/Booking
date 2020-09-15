@@ -121,4 +121,20 @@ public class AmenityDAO {
 		return null;
 	}
 	
+	public boolean updateAmenity(Amenity newAmenity) {
+		Amenity amenity = findAmenityById(newAmenity.getId());
+		if(amenity != null) {
+			try {
+				amenity.setAmenity(newAmenity.getAmenity());
+				saveAmenities();
+				return true;
+			} catch(Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
 }

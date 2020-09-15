@@ -1,6 +1,7 @@
 $(document).ready(() => {
     fetchUsers();
     fetchReservations();
+    fetchComments();
     
     $('#searchButton').click(() => {
         let username = $('#searchField').val();
@@ -66,6 +67,36 @@ $(document).ready(() => {
         
     });
 });
+
+function fetchComments() {
+    let hostUsername = localStorage.getItem('username');
+    $.get({
+        url: '../rest/comment',
+        dataType: 'json',
+        success: response => {
+            renderComments(response);
+        },
+        error: response => {
+            alert(response);
+        }
+    });
+}
+
+function renderComments(comments) {
+    let i;
+    for(i=0; i<comments.length; i++) {
+        $('#commentsTable tr:last').after(`
+        <tr>
+            <th scope="row">` + (i+1) + ` </th>
+            <td>` + comments[i].username +`</td>
+            <td>` + comments[i].apartmentName +`</td>
+            <td>` + comments[i].text +`</td>
+            <td>` + comments[i].rating +`/10</td>
+            <td>` + comments[i].status + ` </td>
+        </tr>
+    `);
+    }
+}
 
 function fetchReservations() {
     $.get({

@@ -3,7 +3,6 @@ package services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -25,9 +24,7 @@ import dao.ReservationDAO;
 import dao.UserDAO;
 import dto.HostDTO;
 import dto.UserPreviewDTO;
-import model.Apartment;
 import model.Host;
-import model.Reservation;
 import model.User;
 import util.UsernameUniqueness;
 
@@ -121,35 +118,23 @@ public class HostService {
 	}
 	
 	private List<UserPreviewDTO> getUsersThatReservedApartment(String username) {
+		UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
 		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
 		Host host = hostDAO.findHostByUsername(username);
-		List<UserPreviewDTO> usersDTO = new ArrayList<>();
-		List<Apartment> apartments = host.getApartmentsForRent();
+		List<User> usersList = new ArrayList<>();
 		
-		if(apartments != null) {
-			UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
-			Map<String, User> users = userDAO.getUsers();
-			for(Apartment apartment : apartments) {
-				users = addUserFromEachReservation(apartment.getReservations(), users);
+		if(host.getUsersThatRented() != null) {
+			for(String userString : host.getUsersThatRented()) {
+				User user = userDAO.findUserByUsername(userString);
+				if(!usersList.contains(user)) {
+					usersList.add(user);
+				}
 			}
-			
-			usersDTO = makeUserDTO(users.values());
 		}
-
-		return usersDTO;
+		
+		return makeUserDTO(usersList);
 	}
 	
-	private Map<String, User> addUserFromEachReservation(List<Reservation> reservations, Map<String, User> users) {
-		if(reservations != null && users != null) {
-			for(Reservation reservation : reservations) {
-				if(!users.containsKey(reservation.getUser().getUsername())) {
-					users.put(reservation.getUser().getUsername(), reservation.getUser());
-				}
-				
-			}
-		}
-		return users;
-	}
 	
 	private List<UserPreviewDTO> makeUserDTO(Collection<User> users) {
 		List<UserPreviewDTO> userDTOs = new ArrayList<>();

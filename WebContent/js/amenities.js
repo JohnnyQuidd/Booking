@@ -22,6 +22,28 @@ $(document).ready(() => {
         }
     });
 
+    $('#postAmenity').click(() => {
+        let amenity = $('#amenity').val();
+        let id = localStorage.getItem('amenityId');
+
+        let payload = JSON.stringify({id, amenity});
+        
+        $.ajax({
+            url: '../rest/amenity',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: payload,
+            dataType: 'text',
+            success: response => {
+                alert(response);
+                window.location.href = 'amenities.html';
+            },
+            error: response => {
+                alert(response);
+            }
+        });
+    });
+
 });
 
 function fetchAmenities() {
@@ -45,7 +67,7 @@ function appendTable(amenities) {
             <th scope="row">` + (i+1) + `</th>
             <td> ` + amenities[i].amenity + `</td>
             <td>`+ (amenities[i].active ? `Yes` : `No`) + `</td>
-            <td>`+ `<button class="btn btn-primary" id="edit` + amenities[i].id +`"> Edit</button> <button class="btn btn-danger" id="delete` + amenities[i].id +`"> Delete</button>` + `</td>
+            <td>`+ `<button class="btn btn-primary" id="edit` + amenities[i].id +`" data-toggle="modal" data-target="#amenitiesModal"> Edit</button> <button class="btn btn-danger" id="delete` + amenities[i].id +`"> Delete</button>` + `</td>
         </tr>`);
     }
 }
@@ -53,7 +75,7 @@ function appendTable(amenities) {
 $(document).on("click", ".btn-primary", function() {
     let amenityString = $(this).attr("id");
     let amenityId = amenityString.substr(4, amenityString.length);
-    console.log('Editing: ' + amenityId);
+    localStorage.setItem('amenityId', amenityId);
 });
 
 $(document).on("click", ".btn-danger", function() {

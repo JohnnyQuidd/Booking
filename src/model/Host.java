@@ -25,4 +25,7 @@ public class Host {
 	private boolean active;
 	@Builder.Default 
 	private List<Apartment> apartmentsForRent = new ArrayList<>();
+	
+	private List<String> usersThatRented;
+
 }

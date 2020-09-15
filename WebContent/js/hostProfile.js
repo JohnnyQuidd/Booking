@@ -2,6 +2,7 @@ $(document).ready(() => {
     fetchUsers();
     fetchReservations();
     fetchOtherReservations();
+    fetchPendingComments();
 
     $('#addApartment').click(() => {
         window.location.href = 'addingApartment.html';
@@ -24,6 +25,37 @@ $(document).ready(() => {
         });
     });
 });
+
+function fetchPendingComments() {
+    let hostUsername = localStorage.getItem('username');
+    $.get({
+        url: '../rest/comment/created/host/' + hostUsername,
+        dataType: 'json',
+        success: response => {
+            renderPendingComments(response);
+        },
+        error: response => {
+            alert(response);
+        }
+    });
+}
+
+function renderPendingComments(comments) {
+    let i;
+    for(i=0; i<comments.length; i++) {
+        $('#commentsTable tr:last').after(`
+        <tr>
+            <th scope="row">` + (i+1) + ` </th>
+            <td>` + comments[i].username +`</td>
+            <td>` + comments[i].apartmentName +`</td>
+            <td>` + comments[i].text +`</td>
+            <td>` + comments[i].rating +`/10</td>
+            <td> <button class="btn btn-success" id="cmtApr` + comments[i].id +`"> Approve</button>
+            <button class="btn btn-danger" id="cmtDec` + comments[i].id +`"> Decline</button> </td>
+        </tr>
+    `);
+    }
+}
 
 function fetchOtherReservations() {
     let hostUsername = localStorage.getItem('username');
@@ -140,35 +172,74 @@ function printUser(users) {
 
 $(document).on("click", ".btn-danger", function() {
     let instruction = $(this).attr("id");
-    let requestID = instruction.substr(7, instruction.length);
 
-    $.ajax({
-        url: '../rest/reservation/decline/' + requestID,
-        type: 'PUT',
-        success: function(response) {
-            alert(response)
-            window.location.href = 'hostProfile.html';
-        },
-        error : function (response) {
-            alert(response.responseText);
-        }
-    });
+    if(instruction.substr(0,6) === 'cmtDec') {
+        let commentID = instruction.substr(6, instruction.length);
+        $.ajax({
+            url: '../rest/comment/decline/' + commentID,
+            type: 'PUT',
+            dataType: 'text',
+            success: response => {
+                alert(response);
+				window.location.href = 'hostProfile.html';
+            },
+            error: response => {
+                alert(response);
+            }
+        });
+    } 
+    else {
+        let requestID = instruction.substr(7, instruction.length);
+
+        $.ajax({
+            url: '../rest/reservation/decline/' + requestID,
+            type: 'PUT',
+            success: function(response) {
+                alert(response)
+                window.location.href = 'hostProfile.html';
+            },
+            error : function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
+
+
 });
 
 $(document).on("click", ".btn-success", function() {
     let instruction = $(this).attr("id");
-    let requestID = instruction.substr(6, instruction.length);
 
-    $.ajax({
-        url: '../rest/reservation/accept/' + requestID,
-        type: 'PUT',
-        success: function(response) {
-            alert(response)
-            window.location.href = 'hostProfile.html';
-        },
-        error : function (response) {
-            alert(response.responseText);
-        }
-    });
+    if(instruction.substr(0,6) === 'cmtApr') {
+        let commentID = instruction.substr(6, instruction.length);
+        $.ajax({
+            url: '../rest/comment/approve/' + commentID,
+            type: 'PUT',
+            dataType: 'text',
+            success: response => {
+                alert(response);
+				window.location.href = 'hostProfile.html';
+            },
+            error: response => {
+                alert(response);
+            }
+        });
+    }
+
+    else {
+        let requestID = instruction.substr(6, instruction.length);
+
+        $.ajax({
+            url: '../rest/reservation/accept/' + requestID,
+            type: 'PUT',
+            success: function(response) {
+                alert(response)
+                window.location.href = 'hostProfile.html';
+            },
+            error : function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
 
 });

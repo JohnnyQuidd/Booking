@@ -96,14 +96,19 @@ public class AmenityService {
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateAmenity(Amenity amenityDTO) {
 		AmenityDAO amenityDAO = (AmenityDAO) context.getAttribute("amenityDAO");
 		Amenity amenity = amenityDAO.findAmenityById(amenityDTO.getId());
 		
-		amenity.setAmenity(amenityDTO.getAmenity());
-		amenityDAO.saveAmenities();
+		if(amenityDAO.updateAmenity(amenityDTO)) {
+			ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+			apartmentDAO.updateAmenityName(amenity);
+			return Response.status(200).entity("Amenity edited successfully").build();
+		}
 		
-		return Response.status(200).entity("OK").build();
+		
+		return Response.status(500).entity("An error occurred while persisting amenity").build();
 	}
 	
 	@Path("/{id}")
