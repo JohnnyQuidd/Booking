@@ -340,6 +340,29 @@ public class ApartmentService {
 		return Response.status(200).entity(apartments).build();
 	}
 	
+	@Path("/filter/active")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response filterActiveApartments(ApartmentFilterDTO apartmentDTO) {
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		Collection<Apartment> apartments = new ArrayList<>();
+		
+		apartments = apartmentDAO.getApartments().values();
+		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE)).collect(Collectors.toList());
+		
+		if(apartmentDTO.getAmenities() != null)
+			apartments = filterApartmentsByAmenities(apartments, apartmentDTO.getAmenities());
+		
+		if(apartmentDTO.getStatus() != null)
+			apartments = filterApartmentsByStatus(apartments, apartmentDTO.getStatus());
+		
+		if(apartmentDTO.getType() != null)
+			apartments = filterApartmentsByType(apartments, apartmentDTO.getType());
+		
+		return Response.status(200).entity(apartments).build();
+	}
+	
 	private Apartment makeApartmentOutOfDTO(NewApartmentDTO dto) {
 		ApartmentType type;
 		if(dto.getApartmentType().equals("Room")) {

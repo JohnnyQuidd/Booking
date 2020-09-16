@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import dto.HostDTO;
 import lombok.Getter;
 import lombok.Setter;
 import model.Apartment;
@@ -166,6 +167,29 @@ public class HostDAO {
 		
 		host.getUsersThatRented().add(username);
 		updateHost(host);
+	}
+	
+	public boolean modifyHost(HostDTO hostDTO) {
+		try {
+			Host host = findHostByUsername(hostDTO.getUsername());
+			
+			if(!hostDTO.getFirstName().equals(""))
+				host.setFirstName(hostDTO.getFirstName());
+			
+			if(!hostDTO.getLastName().equals(""))
+				host.setLastName(hostDTO.getLastName());
+			
+			if(!hostDTO.getPassword().equals(""))
+				host.setPassword(hostDTO.getPassword());
+			
+			saveHosts();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		
 	}
 	
 	

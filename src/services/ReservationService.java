@@ -28,9 +28,7 @@ import dao.HostDAO;
 import dao.ReservationDAO;
 import dao.UserDAO;
 import dto.NewReservation;
-import dto.ReservationFilterDTO;
 import dto.ReservationPreviewDTO;
-import dto.ReservationSortingDTO;
 import model.Apartment;
 import model.Host;
 import model.Reservation;
@@ -110,36 +108,99 @@ public class ReservationService {
 		return Response.status(500).entity("An error occurred while persisting reservation").build();
 	}
 	
-	@Path("/sort")
-	@POST
+	@Path("/sort/{username}/{criteria}")
+	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response sortReservations(ReservationSortingDTO reservationDTO) {
-		List<Reservation> reservations = reservationDTO.getReservations();
-		switch(reservationDTO.getCriteria()) {
-		case "priceASC": reservations = sortReservationsByPriceASC(reservationDTO);
-			break;
-		case "priceDESC" : 	reservations = sortReservationsByPriceDESC(reservationDTO);
-	}
-		return Response.status(200).entity(reservations).build();
+	public Response sortReservations(@PathParam("username") String username, @PathParam("criteria") String criteria) {
+		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
+		Host host = hostDAO.findHostByUsername(username);
+		if(host == null)
+			return Response.status(404).entity("Host not found").build();
+		
+		
+		if(host.getApartmentsForRent() != null) {
+			Collection<Reservation> relevantReservations = getNonCreatedReservationsForHost(username);
+			Collection<ReservationPreviewDTO> dtos = formDtosOutOfModel(relevantReservations);
+			
+			switch(criteria) {
+				case "priceASC": dtos = sortReservationsByPriceASC(dtos);
+				break;
+				case "priceDESC" : 	dtos = sortReservationsByPriceDESC(dtos);
+			}
+			
+			return Response.status(200).entity(dtos).build();
+		}
+		
+		return Response.status(200).entity("Nothing found").build();
 	}
 	
-	@Path("/filter")
-	@POST
+	@Path("/sort/all/{criteria}")
+	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response filterReservationsByStatus(ReservationFilterDTO filterDTO, @Context HttpServletRequest request) {
+	public Response sortAllReservations(@PathParam("criteria") String criteria, @Context HttpServletRequest request) {
+		String role = (String) request.getSession().getAttribute("role");
+		if(!role.equals("admin"))
+			return Response.status(403).entity("You have no permission to sort all reservations").build();
+		
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		
+		Collection<Reservation> relevantReservations = reservationDAO.getReservations().values();
+		Collection<ReservationPreviewDTO> dtos = formDtosOutOfModel(relevantReservations);
+		
+		switch(criteria) {
+			case "priceASC": dtos = sortReservationsByPriceASC(dtos);
+				break;
+			case "priceDESC" : 	dtos = sortReservationsByPriceDESC(dtos);
+		}
+		
+		return Response.status(200).entity(dtos).build();
+		
+	}
+	
+	@Path("/sort/user/{username}/{criteria}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response sortUsersReservations(@PathParam("username")String username, @PathParam("criteria") String criteria) {
+		UserDAO userDAO = (UserDAO) context.getAttribute("userDAO");
+		User user = userDAO.findUserByUsername(username);
+		if(user == null) return Response.status(404).entity("User not found").build();
+		
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		Collection<Reservation> reservations = reservationDAO.getReservations().values();
+		
+		reservations = reservations.stream().filter(reservation -> reservation.getUser().getUsername().equals(username)).collect(Collectors.toList());
+		Collection<ReservationPreviewDTO> dtos = formDtosOutOfModel(reservations);
+		
+		switch(criteria) {
+			case "priceASC": dtos = sortReservationsByPriceASC(dtos);
+				break;
+			case "priceDESC" : 	dtos = sortReservationsByPriceDESC(dtos);
+	}
+		
+		return Response.status(200).entity(dtos).build();
+		
+	}
+	
+	@Path("/filter/{status}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response filterReservationsByStatus(@PathParam("status") ReservationStatus status, @Context HttpServletRequest request) {
 		String role = (String) request.getSession().getAttribute("role");
 		String username = (String) request.getSession().getAttribute("username");
 		Collection<Reservation> reservations = new ArrayList<>();
 		
 		switch(role) {
-			case "admin" : reservations = getAllReservations(filterDTO.getStatus());
+			case "admin" : reservations = getAllReservations(status);
 				break;
-			case "host" : reservations = getReservationsForHost(username, filterDTO.getStatus());	
+			case "host" : reservations = getReservationsForHostAndStatus(username, status);	
 		}
 		
-		return Response.status(200).entity(reservations).build();
+		Collection<ReservationPreviewDTO> dtos = formDtosOutOfModel(reservations);
+		
+		return Response.status(200).entity(dtos).build();
 	}
 	
 	@Path("/{hostUsername}")
@@ -309,43 +370,77 @@ public class ReservationService {
 		return Response.status(500).entity("An error occurred while updating reservation").build();
 	}
 	
-	public List<Reservation> sortReservationsByPriceASC(ReservationSortingDTO reservationDTO) {
-		List<Reservation> reservations = reservationDTO.getReservations();
-		return reservations.stream().sorted(Comparator.comparingDouble(Reservation::getPrice)).collect(Collectors.toList());
+	@Path("/finish/{reservationId}")
+	@PUT
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response changeReservationStatusToFinished(@PathParam("reservationId") Long id) {
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
+		Reservation reservation = reservationDAO.findReservationById(id);
+		
+		if(reservation == null) return Response.status(404).entity("Reservation not found").build();
+		
+		if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED))
+			return Response.status(403).entity("Reservation is not accepted").build();
+		
+//		if(reservation.getRentUntil().isAfter(LocalDate.now()))
+//			return Response.status(403).entity("Reservation is not finished yet").build();
+		
+		reservation.setReservationStatus(ReservationStatus.FINISHED);
+		
+		if(reservationDAO.updateReservation(reservation)) {
+			context.setAttribute("reservationDAO", reservationDAO);
+			return Response.status(200).entity("Reservation updated").build();
+		}
+		return Response.status(500).entity("An error occurred while updating reservation").build();
 	}
 	
-	public List<Reservation> sortReservationsByPriceDESC(ReservationSortingDTO reservationDTO) {
-		List<Reservation> reservations = reservationDTO.getReservations();
-		return reservations.stream().sorted(Comparator.comparingDouble(Reservation::getPrice).reversed()).collect(Collectors.toList());
+	public List<ReservationPreviewDTO> sortReservationsByPriceASC(Collection<ReservationPreviewDTO> reservationDTO) {
+		return reservationDTO.stream().sorted(Comparator.comparingDouble(ReservationPreviewDTO::getPrice)).collect(Collectors.toList());
+	}
+	
+	public List<ReservationPreviewDTO> sortReservationsByPriceDESC(Collection<ReservationPreviewDTO> reservationDTO) {
+		return reservationDTO.stream().sorted(Comparator.comparingDouble(ReservationPreviewDTO::getPrice).reversed()).collect(Collectors.toList());
 	}
 	
 	public Collection<Reservation> getAllReservations(ReservationStatus status) {
 		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
 		Collection<Reservation> reservations = reservationDAO.getReservations().values();
 		
-		reservations.stream().filter(reservation -> {
+		reservations = reservations.stream().filter(reservation -> {
 			return reservation.getReservationStatus().equals(status);
-		});
+		}).collect(Collectors.toList());
 		
 		return reservations;
 	}
 	
-	public Collection<Reservation> getReservationsForHost(String username, ReservationStatus status) {
+	public Collection<Reservation> getNonCreatedReservationsForHost(String username) {
 		Collection<Reservation> reservations = new ArrayList<>();
+		ReservationDAO reservationDAO = (ReservationDAO) context.getAttribute("reservationDAO");
 		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
 		Host host = hostDAO.findHostByUsername(username);
 		if(host == null)
 			return reservations;
 		
 		Collection<Apartment> apartments = host.getApartmentsForRent();
-		for(Apartment apartment : apartments) {
-			for(Reservation reservation : apartment.getReservations()) 
-				reservations.add(reservation);
+		if(apartments != null ) {
+			for(Apartment apartment : apartments) {
+				if(reservationDAO.hasReservationForApartmentAndHost(apartment, username)) {
+					reservations.addAll(reservationDAO.reservationForApartmentAndHost(apartment, username));
+				}
+			}
 		}
 		
-		reservations.stream().filter(reservation -> {
+		reservations = reservations.stream().filter(reservation -> !reservation.getReservationStatus().equals(ReservationStatus.CREATED)).collect(Collectors.toList());
+		
+		return reservations;
+	}
+	
+	public Collection<Reservation> getReservationsForHostAndStatus(String username, ReservationStatus status) {
+		Collection<Reservation> reservations = getNonCreatedReservationsForHost(username);
+		
+		reservations = reservations.stream().filter(reservation -> {
 			return reservation.getReservationStatus().equals(status);
-		});
+		}).collect(Collectors.toList());
 		
 		return reservations;
 	}
@@ -366,7 +461,8 @@ public class ReservationService {
 		reservation.setMessage(dto.getMessage());
 		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 		Apartment apartment = apartmentDAO.findApartmentById(dto.getApartmentId());
-		reservation.setPrice(apartment.getPricePerNight());
+		double price = apartment.getPricePerNight() * dto.getNumberOfNights();
+		reservation.setPrice(price);
 		reservation.setReservationStatus(ReservationStatus.CREATED);
 		reservation.setNumberOfNights(dto.getNumberOfNights());
 		reservation.setActive(true);
@@ -448,6 +544,7 @@ public class ReservationService {
 					.apartmentName(apartment.getApartmentName())
 					.id(reservation.getId())
 					.apartmentId(apartment.getId())
+					.price(reservation.getPrice())
 					.build();
 			
 			dtos.add(dto);

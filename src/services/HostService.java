@@ -10,6 +10,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -58,6 +59,21 @@ public class HostService {
 		}
 	}
 	
+	@Path("/{hostName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response fetchHostForHostName(@PathParam("hostName") String hostName) {
+		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
+		Host host = hostDAO.findHostByUsername(hostName);
+		
+		if(host == null) return Response.status(404).entity("Host not found").build();
+		
+		HostDTO hostDTO = formDtoFromModel(host);
+		
+		return Response.status(200).entity(hostDTO).build();
+	}
+	
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -82,6 +98,23 @@ public class HostService {
 		}
 		
 		return Response.status(500).entity("An error occurred while persisting a host").build();
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response editHostDate(HostDTO hostDTO) {
+		HostDAO hostDAO = (HostDAO) context.getAttribute("hostDAO");
+		Host host = hostDAO.findHostByUsername(hostDTO.getUsername());
+		
+		if(host == null) return Response.status(404).entity("Host not found").build();
+		
+		if(hostDAO.modifyHost(hostDTO)) {
+			context.setAttribute("hostDAO", hostDAO);
+			return Response.status(200).entity("Data updated").build();
+		}
+		
+		return Response.status(500).entity("An error occurred while saving host").build();
 	}
 	
 	@Path("/{hostUsername}/users")
@@ -115,6 +148,15 @@ public class HostService {
 			return Response.status(200).entity(users).build();
 		
 		return Response.status(404).entity("User with username " + username + " hasn't reserved any of your apartments").build();
+	}
+	
+	
+	private HostDTO formDtoFromModel(Host host) {
+		return HostDTO.builder()
+				.username(host.getUsername())
+				.firstName(host.getFirstName())
+				.lastName(host.getLastName())
+				.build();
 	}
 	
 	private List<UserPreviewDTO> getUsersThatReservedApartment(String username) {

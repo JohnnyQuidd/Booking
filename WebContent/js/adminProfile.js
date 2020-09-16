@@ -27,6 +27,40 @@ $(document).ready(() => {
         window.location.href = 'managingApartments.html';
     });
 
+    $('#sort').click(() => {
+        let criteria = $('#criteria').val();
+        let username = localStorage.getItem('username');
+
+        $.get({
+            url: '../rest/reservation/sort/all/' + criteria,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                $('#reservationsTable tr').empty();
+                appendReservationTable(response);
+            },
+            error: response => {
+                console.log(response);
+            }
+        });
+    });
+
+    $('#filter').click(() => {
+        let status = $('#filter-select').val();
+        $.get({
+            url: '../rest/reservation/filter/' + status,
+            dataType: 'json',
+            success: response => {
+                $('#reservationsTable tr').empty();
+                appendReservationTable(response);
+            }, 
+            error: response => {
+                console.log(response);
+            }
+        });
+    });
+
+
     $('#addHost').click(() => {
         let username = $('#username').val();
         let firstName = $('#firstName').val();
@@ -123,6 +157,7 @@ function appendReservationTable(reservations) {
                 <td>` + reservations[i].message +`</td>
                 <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
                 <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+                <td>` + reservations[i].price +` $</td>
 				<td>` + reservations[i].reservationStatus +`</td>
             </tr>
         `);

@@ -86,3 +86,25 @@
 #submit {
 	width: 100%;
 }
+
+.sorting {
+	width: 60%;
+	height: 50px;
+	margin: 10px auto;
+	position: relative;
+}
+
+#criteria {
+	width: 20%;
+	position: absolute;
+	top: 5px;
+	left: 65%;
+}
+
+#sort {
+	position: absolute;
+	top: 5px;
+	left: 90%;
+	width: 90px;
+	background-color: rgba(2, 117, 216, 0.9);
+}

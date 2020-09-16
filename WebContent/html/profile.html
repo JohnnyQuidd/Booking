@@ -20,6 +20,31 @@
         <div class="text-center">
             <h2 id="pendingReservations">My reservations</h2>
 
+            <div class="sorting">
+                <select name="criteria" id="criteria" class="form-control">
+                  <option value="priceASC">Price ascending</option>
+                  <option value="priceDESC">Price descending</option>
+                </select>
+                <button class="btn btn-info" id="sort">Sort</button>
+              </div>
+
+              <table class="table table-hover" id="reservationsTable">
+                  <thead class="thead-inverse">
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username </th>
+                        <th scope="col">Apartment</th>
+                        <th scope="col">Message</th>
+                        <th scope="col">From</th>
+                        <th scope="col">Until</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="reservations-body">
+                    </tbody>
+                </table>
+
             <table class="table table-hover" id="reservationsTable">
               <thead class="thead-inverse">
                   <tr>
@@ -29,6 +54,7 @@
                     <th scope="col">Message</th>
                     <th scope="col">From</th>
                     <th scope="col">Until</th>
+                    <th scope="col">Price</th>
                     <th scope="col"> Status / Actions</th>
                   </tr>
                 </thead>

@@ -32,6 +32,24 @@ $(document).ready(() => {
             showWarnings(firstName, lastName, password, password2);
         }
     });
+
+    $('#sort').click(() => {
+        let criteria = $('#criteria').val();
+        let username = localStorage.getItem('username');
+
+        $.get({
+            url: '../rest/reservation/sort/user/' + username + '/' + criteria,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                $('#reservationsTable tr').empty();
+                appendReservationTable(response);
+            },
+            error: response => {
+                console.log(response);
+            }
+        });
+    });
     
 
     $('#review').click(() => {
@@ -83,6 +101,7 @@ function appendReservationTable(reservations) {
                 <td>` + reservations[i].message +`</td>
                 <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
                 <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+                <td>` + reservations[i].price +` $</td>
                 <td>` + showStatus(reservations[i].reservationStatus, reservations[i].id) + `</td>
             </tr>
         `);

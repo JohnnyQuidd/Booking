@@ -3,6 +3,7 @@ $(document).ready(() => {
     fetchReservations();
     fetchOtherReservations();
     fetchPendingComments();
+    fetchHostData();
 
     $('#addApartment').click(() => {
         window.location.href = 'addingApartment.html';
@@ -24,7 +25,95 @@ $(document).ready(() => {
             }
         });
     });
+
+    $('#sort').click(() => {
+        let criteria = $('#criteria').val();
+        let username = localStorage.getItem('username');
+
+        $.get({
+            url: '../rest/reservation/sort/' + username + '/' + criteria,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                $('#otherReservationsTable tr').empty();
+                appendOtherReservationTable(response);
+            },
+            error: response => {
+                console.log(response);
+            }
+        });
+    });
+
+    $('#filter').click(() => {
+        let status = $('#filter-select').val();
+        $.get({
+            url: '../rest/reservation/filter/' + status,
+            dataType: 'json',
+            success: response => {
+                $('#otherReservationsTable tr').empty();
+                appendOtherReservationTable(response);
+            }, 
+            error: response => {
+                console.log(response);
+            }
+        });
+    });
+
+    $('#edit').click(() => {
+        let username = localStorage.getItem('username');
+        let firstName = $('#firstName').val();
+        let lastName = $('#lastName').val();
+        let password = $('#password').val();
+        let password2 = $('#password2').val();
+
+        if(firstName !== '' && lastName !== '' && password !== '' && password2 !== '') {
+            if(password !== password2) {
+                alert('Passwords must match');
+                return;
+            }
+
+            let payload = JSON.stringify({username, firstName, lastName, password});
+            $.ajax({
+                url: '../rest/host',
+                type: 'PUT',
+                data: payload,
+                contentType: 'application/json',
+                dataType: 'text',
+                success: response => {
+                    alert(response);
+                    window.location.href = 'hostProfile.html';
+                },
+                error: response => {
+                    alert(response);
+                }
+            });
+        }
+        else {
+            alert('All fields must be populated');
+        }
+    });
+
 });
+
+function fetchHostData() {
+    let username = localStorage.getItem('username');
+    $.get({
+        url: '../rest/host/' + username,
+        dataType: 'json',
+        success: response => {
+            setHostModal(response);
+        },
+        error: response => {
+            alert(response);
+        }
+    });
+}
+
+function setHostModal(host) {
+    $('#username').val(host.username);
+    $('#firstName').val(host.firstName);
+    $('#lastName').val(host.lastName);
+}
 
 function fetchPendingComments() {
     let hostUsername = localStorage.getItem('username');
@@ -74,6 +163,7 @@ function fetchOtherReservations() {
 
 function appendOtherReservationTable(reservations) {
     let i;
+
     for(i=0; i<reservations.length; i++) {
         $('#otherReservationsTable tr:last').after(`
             <tr>
@@ -83,10 +173,18 @@ function appendOtherReservationTable(reservations) {
                 <td>` + reservations[i].message +`</td>
                 <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
                 <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+				<td>` + reservations[i].price +` $</td>
                 <td>` + reservations[i].reservationStatus +`</td>
+                <td>` + renderFinishedButton(reservations[i]) +`</td>
             </tr>
         `);
     }
+}
+
+function renderFinishedButton(reservation) {
+    if(reservation.reservationStatus !== 'ACCEPTED') return '';
+
+    return `<button class="btn btn-light" id="${reservation.id}"> Mark as finished</button>`;
 }
 
 function fetchReservations() {
@@ -115,6 +213,7 @@ function appendReservationTable(reservations) {
                 <td>` + reservations[i].message +`</td>
                 <td>` + prettifyDate(reservations[i].rentFrom) +`</td>
                 <td>` + prettifyDate(reservations[i].rentUntil) +`</td>
+				<td>` + reservations[i].price +` $</td>
                 <td><button id="accept`+ reservations[i].id + `" class="btn btn-success"> Accept</button> 
                 <button id="decline`+ reservations[i].id + `" class="btn btn-danger"> Decline</button></td>
             </tr>
@@ -157,7 +256,7 @@ function appendTable(users) {
 
 function printUser(users) {
     let user = users[0];
-    $("#usersTable tr:last").empty();
+    $("#usersTable tr").empty();
 
     $('#usersTable tr:last').after(`
     <tr>
@@ -169,6 +268,24 @@ function printUser(users) {
         <td>`+ (user.active ? `Yes` : `No`) + `</td>
     </tr>`);
 }
+
+$(document).on('click', '.btn-light', function() {
+    let id = $(this).attr('id');
+    
+    $.ajax({
+        url: '../rest/reservation/finish/' + id,
+        type: 'PUT',
+        dataType: 'text',
+        success: response => {
+            alert(response);
+            window.location.href = 'hostProfile.html';
+        },
+        error: response => {
+            alert(response);
+        }
+
+    });
+});
 
 $(document).on("click", ".btn-danger", function() {
     let instruction = $(this).attr("id");

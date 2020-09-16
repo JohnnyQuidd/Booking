@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
+import model.Apartment;
 import model.Reservation;
 
 @Getter
@@ -124,4 +127,27 @@ public class ReservationDAO {
 			return false;
 		}
 	}
+	
+
+	
+	public boolean hasReservationForApartmentAndHost(Apartment apartment, String hostName) {
+		for(Reservation reservation : reservations.values()) {
+			if(reservation.getApartmentId().equals(apartment.getId()) && apartment.getHostName().equals(hostName))
+				return true;
+		}
+		return false;
+	}
+	
+	public Collection<Reservation> reservationForApartmentAndHost(Apartment apartment, String hostName) {
+		Collection<Reservation> reservationsList = new ArrayList<>();
+		
+		for(Reservation reservation : reservations.values()) {
+			if(reservation.getApartmentId().equals(apartment.getId()) && apartment.getHostName().equals(hostName)) {
+				reservationsList.add(reservation);
+			}
+		}
+		
+		return reservationsList;
+	}
+	
 }

@@ -14,6 +14,7 @@
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
         <a class="nav-link" href="../index.html">Booking</a>
+        <button class="btn btn-primary" id="editButton" data-toggle="modal" data-target="#editModal"> Edit</button>
         <button class="btn btn-primary" id="addApartment"> Add apartment</button>
 	</nav>
     <div class="jumbotron">
@@ -52,6 +53,7 @@
                       <th scope="col">Message</th>
                       <th scope="col">From</th>
                       <th scope="col">Until</th>
+                      <th scope="col">Price</th>
                       <th scope="col">Actions</th>
                     </tr>
                   </thead>
@@ -60,22 +62,44 @@
               </table>
 
               <hr>
-              <h3>Other reservations</h3>
-              <table class="table table-hover" id="otherReservationsTable">
-                <thead class="thead-inverse">
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Username </th>
-                      <th scope="col">Apartment</th>
-                      <th scope="col">Message</th>
-                      <th scope="col">From</th>
-                      <th scope="col">Until</th>
-                      <th scope="col">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="otherReservations-body">
-                  </tbody>
-              </table>
+              <h3 id="otherReservations">Other reservations</h3>
+
+              <div class="sorting">
+                <select name="filter-select" id="filter-select" class="form-control">
+                  <option value="ACCEPTED">Accepted</option>
+                  <option value="FINISHED">Finished</option>
+                  <option value="DECLINED">Declined</option>
+                  <option value="CANCELED">Canceled</option>
+                </select>
+                <button class="btn btn-info" id="filter">Filter</button>
+
+
+                <select name="criteria" id="criteria" class="form-control">
+                  <option value="priceASC">Price ascending</option>
+                  <option value="priceDESC">Price descending</option>
+                </select>
+                <button class="btn btn-info" id="sort">Sort</button>
+              </div>
+
+              <div class="other-reservations-section">
+                <table class="table table-hover" id="otherReservationsTable">
+                  <thead class="thead-inverse">
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username </th>
+                        <th scope="col">Apartment</th>
+                        <th scope="col">Message</th>
+                        <th scope="col">From</th>
+                        <th scope="col">Until</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="otherReservations-body">
+                    </tbody>
+                </table>
+              </div>
 
               <hr>
               <h3 id="pendingReservations">Pending comments</h3>
@@ -94,6 +118,33 @@
                   <tbody id="comments-body">
                   </tbody>
               </table>
+
+            <!-- editModal -->
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Edit personal data</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                  <input type="text" name="username" id="username" class="form-control" readonly>
+                  <input type="text" name="firstName" id="firstName" class="form-control">
+                  <input type="text" name="lastName" id="lastName" class="form-control">
+                  <input type="password" name="password" id="password" class="form-control">
+                  <input type="password" name="password2" id="password2" placeholder="Confirm password" class="form-control">
+
+                </div>
+
+                <div class="modal-footer">
+                <button type="button" class="btn" data-dismiss="modal" id="close">Close</button>
+                <button type="button" class="btn" id="edit"> Edit</button>
+                </div>
+              </div>
+              </div>
+            </div>
               
         </div>
     </div>

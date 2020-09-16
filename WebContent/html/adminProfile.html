@@ -48,6 +48,24 @@
                 </button>
                 
                 <h2 id="reservations">Reservations</h2>
+                
+                <div class="sorting">
+                  <select name="filter-select" id="filter-select" class="form-control">
+                  	<option value="CREATED">Created</option>
+                    <option value="ACCEPTED">Accepted</option>
+                    <option value="FINISHED">Finished</option>
+                    <option value="DECLINED">Declined</option>
+                    <option value="CANCELED">Canceled</option>
+                  </select>
+                  <button class="btn btn-info" id="filter">Filter</button>
+  
+  
+                  <select name="criteria" id="criteria" class="form-control">
+                    <option value="priceASC">Price ascending</option>
+                    <option value="priceDESC">Price descending</option>
+                  </select>
+                  <button class="btn btn-info" id="sort">Sort</button>
+                </div>
 
                 <table class="table table-hover" id="reservationsTable">
                     <thead class="thead-inverse">
@@ -58,6 +76,7 @@
                           <th scope="col">Message</th>
                           <th scope="col">From</th>
                           <th scope="col">Until</th>
+                          <th scope="col">Price</th>
                           <th scope="col">Status</th>
                         </tr>
                       </thead>

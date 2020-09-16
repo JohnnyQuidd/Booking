@@ -6,6 +6,7 @@ $(document).ready(() => {
     let apartments;
     fetchApartments();
     renderButtons();
+    fetchAmenities();
 
 
 
@@ -27,6 +28,28 @@ $(document).ready(() => {
 
     $('#hostProfileButton').click(() => {
         window.location.href = 'html/hostProfile.html';
+    });
+
+    $('#filter').click(() => {
+        let amenities = $('#amenities').val();
+        let type = $('#apartmentType').val();
+        let status = null;
+        let payload = JSON.stringify({status, amenities, type});
+
+        $.post({
+            url: 'rest/apartment/filter/active',
+            data: payload,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: response => {
+                apartments = response;
+                console.log('Apartments filtered successfully');
+                reRenderApartments(apartments);
+            },
+            error: response => {
+                alert(response);
+            }
+        });
     });
 
     $('#sortApartments').click(() => {
@@ -106,6 +129,28 @@ $(document).on("click", ".btn-secondary", function() {
     localStorage.setItem('apartmentId', apartmentId);
     window.location.href = 'html/apartmentDetails.html';
 });
+
+function fetchAmenities() {
+    $.get({
+        url: 'rest/amenity',
+        dataType: 'json',
+        success: response => {
+            appendSelectBox(response);
+        },
+        error: err => {
+            console.log(err.responseText);
+        }
+    });
+}
+
+function appendSelectBox(amenities) {
+    for(let i=0; i<amenities.length; i++) {
+        $('#amenities').append($('<option>', {
+            value: amenities[i].amenity,
+            text: amenities[i].amenity
+        }));
+    }
+}
 
 
 function fetchApartments() {

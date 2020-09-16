@@ -24,5 +24,6 @@ public class ReservationPreviewDTO {
 	private LocalDate rentUntil;
 	private String message;
 	private Long apartmentId;
+	private double price;
 	private ReservationStatus reservationStatus;
 }

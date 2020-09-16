@@ -42,6 +42,13 @@
 	left: 10px;
 }
 
+#filterApartments {
+	position: absolute;
+	top: 5px;
+	bottom: 5px;
+	left: 200px;
+}
+
 #criteria {
 	position: absolute;
 	width: 200px;
@@ -168,6 +175,16 @@
 	margin: 5px 0 5px 0;
 }
 
+#amenities {
+	width: 80%;
+	margin: 10px auto;
+	height: 100px;
+}
+
+#apartmentType {
+	width: 80%;
+	margin: 10px auto;
+}
 
 #logoutButton {
 	margin-top: 100px;

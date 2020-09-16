@@ -3,8 +3,12 @@
 	margin-bottom: 20px;
 }
 
+#editButton{
+	margin-left: 80%;
+}
+
 #addApartment {
-	margin-left: 85%;
+	margin-left: 1%;
 }
 
 .table {
@@ -51,4 +55,79 @@
 .btn-danger {
 	margin-left: 5px;
 }
+
+#otherReservations {
+	margin-top: 100px;
+	margin-bottom: 10px;
+}
+
+.sorting {
+	width: 60%;
+	height: 50px;
+	margin: 10px auto;
+	position: relative;
+}
+
+#criteria {
+	width: 20%;
+	position: absolute;
+	top: 5px;
+	left: 65%;
+}
+
+#sort {
+	position: absolute;
+	top: 5px;
+	left: 90%;
+	width: 90px;
+	background-color: rgba(2, 117, 216, 0.9);
+}
+
+#filter-select {
+	width: 20%;
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+#filter {
+	position: absolute;
+	top: 5px;
+	left: 25%;
+	width: 90px;
+	background-color: rgba(2, 117, 216, 0.9);
+}
+
+
+#username {
+	width: 80%;
+	margin: 5px auto;
+}
+
+#firstName {
+	width: 80%;
+	margin: 5px auto;
+}
+
+#lastName {
+	width: 80%;
+	margin: 5px auto;
+}
+
+#password {
+	width: 80%;
+	margin: 5px auto;
+}
+
+#password2 {
+	width: 80%;
+	margin: 5px auto;
+}
+
+#edit {
+	background-color: rgba(2, 117, 216, 0.9);
+	color: white;
+}
+
+
 
