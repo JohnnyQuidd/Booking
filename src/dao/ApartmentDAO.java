@@ -43,6 +43,10 @@ public class ApartmentDAO {
         File file = null;
         try {
             file = new File(loadPath);
+            if(!file.exists()) {
+            	file.createNewFile();
+            }
+            	
             in = new BufferedReader(new FileReader(file));
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -91,7 +95,7 @@ public class ApartmentDAO {
 				try {
 					fileWriter.close();
 				} catch (Exception ee) {
-					ee.printStackTrace();
+					System.out.println("Cannot save apartments file not found");
 				}
 			}
 		}
@@ -114,6 +118,7 @@ public class ApartmentDAO {
 		try {
 			Apartment apartment = this.apartments.get(id);
 			apartment.setDeleted(true);
+			apartment.setStatus(ApartmentStatus.INACTIVE);
 			saveApartments();
 			return true;
 		} catch(Exception e) {

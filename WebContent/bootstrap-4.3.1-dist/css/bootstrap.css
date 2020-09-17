@@ -10034,5 +10034,46 @@ a.text-dark:hover, a.text-dark:focus {
     color: inherit;
     border-color: #dee2e6;
   }
+  
+  .jumbotron {
+    background-color: white;
+}
+
+.text-cetner {
+    text-align: center;
+}
+
+.navbar {
+	width: 100%;
+	background-color: #807979;
+	padding-left: 20px;
+	padding-top: 10px;
+}
+
+.nav-link {
+	color: #fff;
+	font-size: 20px;
+}
+
+.nav-link:hover {
+	color: #fff;
+}
+
+.table {
+	width: 60%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.table tr:hover {
+	background-color: rgba(202, 194, 194, 0.5);
+}
+
+.thead-inverse th {
+    color: #fff;
+    background-color: #373a3c;
+}
+  
+  
 }
 /*# sourceMappingURL=bootstrap.css.map */

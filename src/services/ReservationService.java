@@ -492,7 +492,7 @@ public class ReservationService {
 		string = string.trim();
 		String dateArray[] = string.split("/");
 		int day = Integer.parseInt(dateArray[0]);
-		int month = Integer.parseInt(dateArray[1]) + 1;
+		int month = Integer.parseInt(dateArray[1]);
 		int year = Integer.parseInt(dateArray[2]);
 		
 		LocalDate date =  LocalDate.of(year, month, day);
@@ -507,7 +507,7 @@ public class ReservationService {
 		
 		LocalDate current = reservation.getRentFrom();
 		for(int i=0; i<reservation.getNumberOfNights(); i++) {
-			current = current.plusDays(i);
+			current = current.plusDays(1L);
 			if(!apartment.getAvailabeDatesForRenting().contains(current))
 				return false;
 		}
@@ -522,8 +522,9 @@ public class ReservationService {
 		if(apartment.getReservations() == null) return false;		
 
 		for(Reservation existingReservation : apartment.getReservations()) {
-			if(reservation.getRentFrom().isAfter(existingReservation.getRentFrom()) &&
-			   reservation.getRentFrom().isBefore(existingReservation.getRentUntil()))
+			if((reservation.getRentFrom().isAfter(existingReservation.getRentFrom()) || reservation.getRentFrom().isEqual(existingReservation.getRentFrom()))
+				&& (reservation.getRentFrom().isBefore(existingReservation.getRentUntil()) || reservation.getRentFrom().isEqual(existingReservation.getRentUntil())) 
+				&& existingReservation.getReservationStatus().equals(ReservationStatus.ACCEPTED))
 				return true;
 			
 		}

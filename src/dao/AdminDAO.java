@@ -69,8 +69,10 @@ public class AdminDAO {
         File file = null;
         try {
             file = new File(loadPath);
+            if(!file.exists())
+            	this.populateInitialData(file);
+            
             in = new BufferedReader(new FileReader(file));
-
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setVisibilityChecker(
                     VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
@@ -111,5 +113,19 @@ public class AdminDAO {
 				return admin;
 		}
 		return null;
+	}
+	
+	private void populateInitialData(File file) throws IOException {
+		file.createNewFile();
+        this.admins = new HashMap<>();
+        Admin admin = Admin.builder()
+        		.username("admin")
+        		.password("admin")
+        		.firstName("Lazar")
+        		.lastName("Simic")
+        		.build();
+        
+        this.admins.put(admin.getUsername(), admin);
+        saveAdmins();
 	}
 }

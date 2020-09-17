@@ -39,6 +39,8 @@ public class AmenityDAO {
         File file = null;
         try {
             file = new File(loadPath);
+            if(!file.exists())
+            	file.createNewFile();
             in = new BufferedReader(new FileReader(file));
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -86,6 +88,7 @@ public class AmenityDAO {
 				try {
 					fileWriter.close();
 				} catch (Exception ee) {
+					System.out.println("Cannot save apartments file not found");
 					ee.printStackTrace();
 				}
 			}

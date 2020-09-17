@@ -82,7 +82,10 @@ public class UserService {
 				.active(user.isActive())
 				.build();
 		
-		return Response.status(200).entity(dto).build();
+		List<UserPreviewDTO> dtos = new ArrayList<>();
+		dtos.add(dto);
+		
+		return Response.status(200).entity(dtos).build();
 	}
 	
 	@Path("/{username}")
@@ -104,7 +107,7 @@ public class UserService {
 			userDAO.addNewUser(user);
 			
 			servletContext.setAttribute("userDAO", userDAO);
-			return Response.status(200).entity("OK").build();
+			return Response.status(200).entity("Data changed successfully").build();
 		}
 		return Response.status(400).entity("Bad request").build();
 	}

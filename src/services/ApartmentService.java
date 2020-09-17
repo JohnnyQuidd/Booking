@@ -32,7 +32,7 @@ import dao.HostDAO;
 import dto.ApartmentFilterDTO;
 import dto.ApartmentModifyDTO;
 import dto.ApartmentSearchDTO;
-import dto.ApartmentSortingDTO;
+import dto.ApartmentSortIDS;
 import dto.NewApartmentDTO;
 import model.Address;
 import model.Amenity;
@@ -287,25 +287,25 @@ public class ApartmentService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response sortApartments(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> sortedApartments = apartmentsDTO.getApartments();
+	public Response sortApartments(ApartmentSortIDS apartmentSortIDs) {
+		List<Apartment> sortedApartments = fetchApartmentForProvidedIds(apartmentSortIDs.getApartmentsIds());
 		
-		switch(apartmentsDTO.getCriteria()) {
-			case "priceASC": sortedApartments = sortApartmentsByPriceASC(apartmentsDTO);
+		switch(apartmentSortIDs.getCriteria()) {
+			case "priceASC": sortedApartments = sortApartmentsByPriceASC(sortedApartments);
 				break;
-			case "priceDESC" : 	sortedApartments = sortApartmentsByPriceDESC(apartmentsDTO);
+			case "priceDESC" : 	sortedApartments = sortApartmentsByPriceDESC(sortedApartments);
 				break;
-			case "nameASC" : sortedApartments = sortApartmentsByNameASC(apartmentsDTO);
+			case "nameASC" : sortedApartments = sortApartmentsByNameASC(sortedApartments);
 				break;
-			case "nameDESC" : sortedApartments = sortApartmentsByNameDESC(apartmentsDTO);
+			case "nameDESC" : sortedApartments = sortApartmentsByNameDESC(sortedApartments);
 				break;
-			case "roomsASC" : sortedApartments = sortApartmentsByRoomsASC(apartmentsDTO);
+			case "roomsASC" : sortedApartments = sortApartmentsByRoomsASC(sortedApartments);
 				break;
-			case "roomsDESC" : sortedApartments = sortApartmentsByRoomsDESC(apartmentsDTO);
+			case "roomsDESC" : sortedApartments = sortApartmentsByRoomsDESC(sortedApartments);
 				break;
-			case "guestsASC" : sortedApartments = sortApartmentsByGuestsASC(apartmentsDTO);
+			case "guestsASC" : sortedApartments = sortApartmentsByGuestsASC(sortedApartments);
 				break;
-			case "guestsDESC" : sortedApartments = sortApartmentsByGuestsDESC(apartmentsDTO);
+			case "guestsDESC" : sortedApartments = sortApartmentsByGuestsDESC(sortedApartments);
 		}
 		
 		return Response.status(200).entity(sortedApartments).build();
@@ -320,12 +320,14 @@ public class ApartmentService {
 		String role = (String) request.getSession().getAttribute("role");
 		String username = (String) request.getSession().getAttribute("username");
 		Collection<Apartment> apartments = new ArrayList<>();
-		
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
 		
 		switch(role) {
 			case "admin" : apartments = getAllApartments();
 				break;
-			case "host" : apartments = getAllActiveApartmentsForProvidedHost(username);	
+			case "host" : apartments = getAllActiveApartmentsForProvidedHost(username);
+				break;
+			default : apartments = getAllActiveApartments(apartmentDAO);
 		}
 		
 		if(apartmentDTO.getAmenities() != null)
@@ -349,7 +351,8 @@ public class ApartmentService {
 		Collection<Apartment> apartments = new ArrayList<>();
 		
 		apartments = apartmentDAO.getApartments().values();
-		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE)).collect(Collectors.toList());
+		apartments = apartments.stream().filter(apartment -> apartment.getStatus().equals(ApartmentStatus.ACTIVE) && !apartment.isDeleted()).collect(Collectors.toList());
+		
 		
 		if(apartmentDTO.getAmenities() != null)
 			apartments = filterApartmentsByAmenities(apartments, apartmentDTO.getAmenities());
@@ -359,6 +362,7 @@ public class ApartmentService {
 		
 		if(apartmentDTO.getType() != null)
 			apartments = filterApartmentsByType(apartments, apartmentDTO.getType());
+		
 		
 		return Response.status(200).entity(apartments).build();
 	}
@@ -433,7 +437,7 @@ public class ApartmentService {
 		for(String dateString : dates) {
 			String dateArray[] = dateString.split("/");
 			int day = Integer.parseInt(dateArray[0]);
-			int month = Integer.parseInt(dateArray[1]) + 1;
+			int month = Integer.parseInt(dateArray[1]);
 			int year = Integer.parseInt(dateArray[2]);
 			
 			LocalDate date =  LocalDate.of(year, month, day);
@@ -561,58 +565,50 @@ public class ApartmentService {
 		return apartments;
 	}
 	
-	private List<Apartment> sortApartmentsByPriceASC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByPriceASC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight)).collect(Collectors.toList());
 		return sorted;
 	}
 	
 	
-	private List<Apartment> sortApartmentsByPriceDESC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByPriceDESC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingDouble(Apartment::getPricePerNight).reversed()).collect(Collectors.toList());
 		return sorted;
 	}
 
-	private List<Apartment> sortApartmentsByNameASC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByNameASC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName)).collect(Collectors.toList());
 		return sorted;
 	}
 	
-	private List<Apartment> sortApartmentsByNameDESC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByNameDESC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparing(Apartment::getApartmentName).reversed()).collect(Collectors.toList());
 		return sorted;
 	}
 	
-	private List<Apartment> sortApartmentsByRoomsASC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByRoomsASC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms)).collect(Collectors.toList());
 		return sorted;
 	}
 	
-	private List<Apartment> sortApartmentsByRoomsDESC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByRoomsDESC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfRooms).reversed()).collect(Collectors.toList());
 		return sorted;
 	}
 	
-	private List<Apartment> sortApartmentsByGuestsASC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByGuestsASC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests)).collect(Collectors.toList());
 		return sorted;
 	}
 	
-	private List<Apartment> sortApartmentsByGuestsDESC(ApartmentSortingDTO apartmentsDTO) {
-		List<Apartment> apartments = apartmentsDTO.getApartments();
+	private List<Apartment> sortApartmentsByGuestsDESC(List<Apartment> apartments) {
 		List<Apartment> sorted = new ArrayList<>();
 		sorted = apartments.stream().sorted(Comparator.comparingInt(Apartment::getNumberOfGuests).reversed()).collect(Collectors.toList());
 		return sorted;
@@ -660,8 +656,11 @@ public class ApartmentService {
 		for(String amenity : amenities) {
 			boolean doesContainAmenity = false;
 			for(Amenity apartmentAmenity : apartmentAmenities) {
-				if(apartmentAmenity.getAmenity().equals(amenity))
+				if(apartmentAmenity.getAmenity().equals(amenity)) {
 					doesContainAmenity = true;
+					break;
+				}
+					
 			}
 			// stop searching for other amenities if current amenity is not present in apartment
 			if(!doesContainAmenity)
@@ -679,7 +678,7 @@ public class ApartmentService {
 			dateString = dateString.trim();
 			String dateArray[] = dateString.split("/");
 			int day = Integer.parseInt(dateArray[0]);
-			int month = Integer.parseInt(dateArray[1]) + 1;
+			int month = Integer.parseInt(dateArray[1]);
 			int year = Integer.parseInt(dateArray[2]);
 			
 			LocalDate date = LocalDate.of(year, month, day);		
@@ -693,13 +692,25 @@ public class ApartmentService {
 		
 		LocalDate current = checkIn;
 		for(long i=0; i<rentDuration; i++) {
-			current = current.plusDays(i);
+			current = current.plusDays(1L);
 			if(!apartment.getAvailabeDatesForRenting().contains(current))
 				return false;
 
 		}
 		
 		return true;
+	}
+	
+	private List<Apartment> fetchApartmentForProvidedIds(List<Long> idsList) {
+		ApartmentDAO apartmentDAO = (ApartmentDAO) context.getAttribute("apartmentDAO");
+		List<Apartment> apartments = new ArrayList<>();
+		
+		for(int i=0; i<idsList.size(); i++) {
+			Apartment apartment = apartmentDAO.findApartmentById(idsList.get(i));
+			apartments.add(apartment);
+		}
+		
+		return apartments;
 	}
 	
 }

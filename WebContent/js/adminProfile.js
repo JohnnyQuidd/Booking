@@ -10,10 +10,10 @@ $(document).ready(() => {
             url: '../rest/user/' + username,
             dataType: 'json',
             success: response => {
-                printUser(response);
+                appendTable(response);
             },
             error: err => {
-				console.log('Error ' + err);
+				console.log('Error ' + err.responseText);
                 alert(err.responseText);
             }
         });
@@ -29,14 +29,11 @@ $(document).ready(() => {
 
     $('#sort').click(() => {
         let criteria = $('#criteria').val();
-        let username = localStorage.getItem('username');
-
         $.get({
             url: '../rest/reservation/sort/all/' + criteria,
             contentType: 'application/json',
             dataType: 'json',
             success: response => {
-                $('#reservationsTable tr').empty();
                 appendReservationTable(response);
             },
             error: response => {
@@ -51,7 +48,6 @@ $(document).ready(() => {
             url: '../rest/reservation/filter/' + status,
             dataType: 'json',
             success: response => {
-                $('#reservationsTable tr').empty();
                 appendReservationTable(response);
             }, 
             error: response => {
@@ -147,6 +143,25 @@ function fetchReservations() {
 }
 
 function appendReservationTable(reservations) {
+    $('.reservationsTable-div').empty();
+    $('.reservationsTable-div').append(`
+        <table class="table table-hover" id="reservationsTable">
+        <thead class="thead-inverse">
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username </th>
+            <th scope="col">Apartment</th>
+            <th scope="col">Message</th>
+            <th scope="col">From</th>
+            <th scope="col">Until</th>
+            <th scope="col">Price</th>
+            <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody id="reservations-body">
+        </tbody>
+    </table>
+    `);
     let i;
     for(i=0; i<reservations.length; i++) {
         $('#reservationsTable tr:last').after(`
@@ -181,21 +196,25 @@ function fetchUsers() {
     });
 }
 
-function printUser(user) {
-    $("#usersTable tr").empty();
-
-        $('#usersTable tr:last').after(`
-        <tr>
-            <th scope="row">` + 1 + `</th>
-            <td> ` + user.username + `</td>
-            <td>`+ user.firstName + `</td>
-            <td>`+ user.lastName + `</td>
-            <td>`+ user.gender + `</td>
-            <td>`+ (user.active ? `Yes` : `No`) + `</td>
-        </tr>`);
-}
-
 function appendTable(users) {
+	$('.usersTable-div').empty();
+    $('.usersTable-div').append(`
+        <table class="table table-hover" id="usersTable">
+        <thead class="thead-inverse">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username </th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Active</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+    `);
     let i;
     for (i=0; i < users.length; i++) {
         $('#usersTable tr:last').after(`

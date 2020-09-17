@@ -4,7 +4,7 @@ $(document).ready(() => {
     fetchReservations();
 
 	$('#submit').click(() => {
-        let username = $('#username').val();
+        let username = localStorage.getItem('username');
         let firstName = $('#firstName').val();
         let lastName = $('#lastName').val();
         let password = $('#password').val();
@@ -20,7 +20,7 @@ $(document).ready(() => {
                 contentType: 'application/json',
                 dataType: 'text',
                 success: response => {
-                    console.log('Success');
+                    alert(response);
                     window.location.href = 'profile.html';
                 },
                 error: err => {
@@ -42,7 +42,6 @@ $(document).ready(() => {
             contentType: 'application/json',
             dataType: 'json',
             success: response => {
-                $('#reservationsTable tr').empty();
                 appendReservationTable(response);
             },
             error: response => {
@@ -91,6 +90,25 @@ function fetchReservations() {
 }
 
 function appendReservationTable(reservations) {
+    $('.reservationsTable-div').empty();
+    $('.reservationsTable-div').append(`
+        <table class="table table-hover" id="reservationsTable">
+            <thead class="thead-inverse">
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username </th>
+                <th scope="col">Apartment</th>
+                <th scope="col">Message</th>
+                <th scope="col">From</th>
+                <th scope="col">Until</th>
+                <th scope="col">Price</th>
+                <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody id="reservations-body">
+            </tbody>
+        </table>
+    `);
     let i;
     for(i=0; i<reservations.length; i++) {
         $('#reservationsTable tr:last').after(`
@@ -131,10 +149,10 @@ function fetchDataForUser(username) {
     });
 }
 
-function setFields(user) {
-    $('#username').val(user.username);
-    $('#firstName').val(user.firstName);
-    $('#lastName').val(user.lastName);
+function setFields(userList) {
+    $('#username').val(userList[0].username);
+    $('#firstName').val(userList[0].firstName);
+    $('#lastName').val(userList[0].lastName);
 }
 
 function validForm(firstName, lastName, password, password2) {

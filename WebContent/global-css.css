@@ -1,38 +1,38 @@
 .jumbotron {
-    background-color: white;
+    background-color: white !important;
 }
 
 .text-cetner {
-    text-align: center;
+    text-align: center  !important;
 }
 
 .navbar {
-	width: 100%;
-	background-color: #807979;
-	padding-left: 20px;
-	padding-top: 10px;
+	width: 100%  !important;
+	background-color: #807979  !important;
+	padding-left: 20px  !important;
+	padding-top: 10px  !important;
 }
 
 .nav-link {
-	color: #fff;
-	font-size: 20px;
+	color: #fff  !important;
+	font-size: 20px  !important;
 }
 
 .nav-link:hover {
-	color: #fff;
+	color: #fff  !important;
 }
 
 .table {
-	width: 60%;
-	margin-left: auto;
-	margin-right: auto;
+	width: 60%  !important;
+	margin-left: auto !important;
+	margin-right: auto  !important;
 }
 
 .table tr:hover {
-	background-color: rgba(202, 194, 194, 0.5);
+	background-color: rgba(202, 194, 194, 0.5)  !important;
 }
 
 .thead-inverse th {
-    color: #fff;
-    background-color: #373a3c;
+    color: #fff  !important;
+    background-color: #373a3c  !important;
 }

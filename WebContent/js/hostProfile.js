@@ -17,11 +17,10 @@ $(document).ready(() => {
             url: '../rest/host/' + hostUsername + '/' + username,
             dataType: 'json',
             success: response => {
-                printUser(response);
+                appendTable(response);
             },
             error: err => {
 				console.log('Error ' + err);
-                alert(err.responseText);
             }
         });
     });
@@ -104,7 +103,7 @@ function fetchHostData() {
             setHostModal(response);
         },
         error: response => {
-            alert(response);
+            console.log(response);
         }
     });
 }
@@ -124,7 +123,7 @@ function fetchPendingComments() {
             renderPendingComments(response);
         },
         error: response => {
-            alert(response);
+            console.log(response);
         }
     });
 }
@@ -155,13 +154,35 @@ function fetchOtherReservations() {
             appendOtherReservationTable(response);
         },
         error: err => {
-            alert(err.responseText);
+            console.log(err);
         }
     });
  
 }
 
 function appendOtherReservationTable(reservations) {
+    $('.otherReservationsTable-div').empty();
+    $('.otherReservationsTable-div').append(`
+        <div class="other-reservations-section">
+        <table class="table table-hover" id="otherReservationsTable">
+        <thead class="thead-inverse">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username </th>
+                <th scope="col">Apartment</th>
+                <th scope="col">Message</th>
+                <th scope="col">From</th>
+                <th scope="col">Until</th>
+                <th scope="col">Price</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody id="otherReservations-body">
+            </tbody>
+        </table>
+    </div>
+    `);
     let i;
 
     for(i=0; i<reservations.length; i++) {
@@ -196,7 +217,7 @@ function fetchReservations() {
             appendReservationTable(response);
         },
         error: err => {
-            alert(err.responseText);
+            console.log(err);
         }
     });
  
@@ -234,12 +255,29 @@ function fetchUsers() {
             appendTable(response);
         },
         error: err => {
-            alert(err.responseText);
+            console.log(err);
         }
     });
 }
 
 function appendTable(users) {
+    $('.usersTable-div').empty();
+    $('.usersTable-div').append(`
+            <table class="table table-hover" id="usersTable">
+            <thead class="thead-inverse">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username </th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Active</th>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+    `);
     let i;
     for (i=0; i < users.length; i++) {
         $('#usersTable tr:last').after(`
@@ -252,21 +290,6 @@ function appendTable(users) {
             <td>`+ (users[i].active ? `Yes` : `No`) + `</td>
         </tr>`);
     }
-}
-
-function printUser(users) {
-    let user = users[0];
-    $("#usersTable tr").empty();
-
-    $('#usersTable tr:last').after(`
-    <tr>
-        <th scope="row">` + 1 + `</th>
-        <td> ` + user.username + `</td>
-        <td>`+ user.firstName + `</td>
-        <td>`+ user.lastName + `</td>
-        <td>`+ user.gender + `</td>
-        <td>`+ (user.active ? `Yes` : `No`) + `</td>
-    </tr>`);
 }
 
 $(document).on('click', '.btn-light', function() {

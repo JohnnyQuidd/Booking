@@ -47,6 +47,7 @@ $(document).ready(() => {
                 reRenderApartments(apartments);
             },
             error: response => {
+                console.log('Apartments couldn\'t be filtered');
                 alert(response);
             }
         });
@@ -54,9 +55,13 @@ $(document).ready(() => {
 
     $('#sortApartments').click(() => {
         let criteria = $('#criteria').val();
-		let apartments = this.apartments;
-        let payload = JSON.stringify({criteria, apartments});
-
+        let apartmentsIds = [];
+        let i = 0;
+        for(i = 0; i<this.apartments.length; i++)
+            apartmentsIds[i] = this.apartments[i].id;
+        
+        let payload = JSON.stringify({criteria, apartmentsIds});
+		
         $.post({
             url: 'rest/apartment/sort',
             data: payload,
@@ -64,11 +69,10 @@ $(document).ready(() => {
             dataType: 'json',
             success: response => {
                 apartments = response;
-                console.log('Apartments sorted successfully');
                 reRenderApartments(apartments);
             },
-            error: () => {
-                console.log('Couldn\'t filter apartments');
+            error: response => {
+                console.log(response);
             }
         });
 

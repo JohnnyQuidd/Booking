@@ -6,7 +6,7 @@
 #loginButton {
 	position: absolute;
 	top: 5px;
-	right: 5%;
+	right: 10%;
 }
 
 #registerButton {
@@ -29,7 +29,7 @@
 
 .search-filter {
 	position: relative;
-	width: 50%;
+	width: 70%;
 	margin: 10px auto 20px auto;
 	height: 45px;
 	border: 1px solid rgba(148, 151, 151, 0.6);
@@ -65,7 +65,7 @@
 }
 
 .apartment {
-	width: 50%;
+	width: 70%;
 	height: 260px;
 	margin: 0px auto 30px auto;
 	position: relative;
@@ -188,6 +188,6 @@
 
 #logoutButton {
 	margin-top: 100px;
-	margin-left: -25%;
+	margin-left: -35%;
 	position: absolute;
 }

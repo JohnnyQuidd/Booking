@@ -131,7 +131,7 @@ img {
 
 .comment {
 	width: 80%;
-	margin: 0 auto;
+	margin: 20px auto;
     border: 1px solid rgba(27, 187, 174, 0.6);
 	box-shadow: 3px 5px rgba(136, 136, 138, 0.5);
     position: relative;
@@ -141,7 +141,7 @@ img {
 .text {
 	position: absolute;
 	top: 5px;
-	left: 45%;
+	left: 5%;
 }
 
 .timestamp {

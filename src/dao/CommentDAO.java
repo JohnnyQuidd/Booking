@@ -39,6 +39,8 @@ public class CommentDAO {
         File file = null;
         try {
             file = new File(loadPath);
+            if(!file.exists())
+            	file.createNewFile();
             in = new BufferedReader(new FileReader(file));
 
             ObjectMapper objectMapper = new ObjectMapper();
