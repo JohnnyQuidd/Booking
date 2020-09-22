@@ -4,7 +4,8 @@
 Booking is a Web application for renting apartments. It supports leaving reviews, filtering apartments, searching for desired apartments on the market by applying wide range of different criteria and so on. Project was an official assignment of Web programming course that took place in Faculty of technical sciences in Novi Sad, 2020.
 
 <hr>
-##Technology stack
+
+### Technology stack
 
 <ul>
     <li> JavaEE using JAX-RS specification</li>
@@ -12,6 +13,7 @@ Booking is a Web application for renting apartments. It supports leaving reviews
 </ul>
 
 <hr>
+
 ### Deployment guide
 
 Booking is a project developed for deploying on Tomcat container (preferable version is _Tomcat 8.0.x_)
@@ -41,13 +43,14 @@ Admin can create hosts that can further create new apartment which users can ren
 Internet connection is required because external API's are being called such as *OpenLayers* for generating dynamic maps.
 
 <hr>
+
 ### Some insights of project's Look and Feel
 
-#####Homepage for non-logged in user
+##### Homepage for non-logged in user
 
 ![Booking homepage](/images/homepage.png "Booking homepage")
 
-#####Adding apartments from host's perspective
+##### Adding apartments from host's perspective
 
 ![Adding apartment](/images/addingApartment1.png "Adding apartment1")
 
@@ -74,6 +77,7 @@ Internet connection is required because external API's are being called such as 
 
 
 <hr>
+
 ### Author
 <ul>
     <li> Petar Kovacevic RA 245/2017 </li>
